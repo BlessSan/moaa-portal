@@ -12,6 +12,9 @@ define("BRAND_NAME_META_KEY", "brand_name");
 define("USER_META_WORKSHOP_KEY", "workshop");
 define("PORTAL_QUERY_VAR", "brand");
 define("CLIENT_ROLE", "subscriber");
+define("ADMIN_USER_PROFILE_ROOT_DIV", "admin-user-profile-root");
+define("ADMIN_ADD_USER_ROOT_DIV", "admin-add-user-root");
+
 
 
 
@@ -241,14 +244,15 @@ add_action('user_register', 'moaa_user_register');
 
 function moaa_workshop_field()
 {
+  //* insert react component for adding new user page
   ?>
+  <div id="<?php echo ADMIN_ADD_USER_ROOT_DIV ?>"></div>
   <div>Workshop (optional)</div>
   <label for="moaa_workshop">
     <input style="width: auto;" type="text" name="moaa_workshop" id="moaa_workshop" />
   </label>
   <?php
 }
-
 //* add custom field when admin add new user
 add_action('user_new_form', 'moaa_workshop_field');
 
@@ -258,7 +262,9 @@ function moaa_edit_user_profile($profile_user)
   //* only admin can check other user and update assigned workshop
   //* input handled by moaa_user_profile_update()
   if (current_user_can('administrator')) {
+    //* insert react component when admin edit user
     ?>
+    <div id="<?php echo ADMIN_USER_PROFILE_ROOT_DIV ?>"></div>
     <div>Workshop (optional)</div>
     <div>assigned: <?php echo get_user_meta($profile_user->ID, USER_META_WORKSHOP_KEY, true); ?> </div>
     <label for="moaa_workshop">
@@ -267,11 +273,11 @@ function moaa_edit_user_profile($profile_user)
     <?php
   }
 }
-
 //* display additional field when admin edits registered user
 add_action('edit_user_profile', 'moaa_edit_user_profile');
 
 
+//* user created when admin add
 function moaa_user_created($user_id)
 {
   if (!is_wp_error($user_id)) {
@@ -280,6 +286,7 @@ function moaa_user_created($user_id)
     }
   }
 }
+//* user created when admin add
 add_action('edit_user_created_user', 'moaa_user_created');
 
 
@@ -290,6 +297,7 @@ function moaa_user_profile_update($user_id)
     update_user_meta($user_id, USER_META_WORKSHOP_KEY, sanitize_text_field($_POST['moaa_workshop']));
   }
 }
+//* when admin update user profile
 add_action('edit_user_profile_update', 'moaa_user_profile_update');
 
 /** 
@@ -421,8 +429,33 @@ function enqueue_react_scripts()
   }
 }
 
-
 add_action('wp_enqueue_scripts', 'enqueue_react_scripts');
+
+
+/**
+ ** enqueue react scripts configured by wp-scripts
+ * https://developer.wordpress.org/news/2024/03/how-to-use-wordpress-react-components-for-plugin-pages/
+ * https://developer.wordpress.org/block-editor/getting-started/devenv/get-started-with-wp-scripts/
+ */
+function moaa_admin_react_scripts()
+{
+  if (!is_admin()) {
+    return;
+  }
+
+  $asset_file = plugin_dir_path(__FILE__) . 'moaa-react-admin/build/index.asset.php';
+
+  if (!file_exists($asset_file)) {
+    return;
+  }
+
+  $asset = include $asset_file;
+
+  wp_enqueue_script('moaa_admin_react_script', plugins_url('moaa-react-admin/build/index.js', __FILE__), $asset['dependencies'], $asset['version'], array('in_footer' => true));
+}
+
+add_action('admin_enqueue_scripts', 'moaa_admin_react_scripts');
+
 
 //** ----------------------------------------- ACTIVATION DEACTIVATION ----------------------------------------- */
 

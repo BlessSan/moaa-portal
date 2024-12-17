@@ -1,8 +1,8 @@
 {
-  "name": "moaa-portal",
+  "name": "moaa-react-admin",
   "version": "1.0.0",
-  "description": "wordpress plugin for user portal",
-  "main": "src/index.js",
+  "description": "react components in admin dashboard",
+  "main": "build/index.js",
   "scripts": {
     "format": "wp-scripts format",
     "lint:css": "wp-scripts lint-style",
@@ -12,6 +12,12 @@
   },
   "author": "",
   "license": "ISC",
+  "keywords": [],
+  "dependencies": {
+    "@wordpress/components": "^29.0.0",
+    "@wordpress/dom-ready": "^4.14.0",
+    "@wordpress/element": "^6.14.0"
+  },
   "devDependencies": {
     "@wordpress/scripts": "^30.7.0"
   }
