@@ -28,8 +28,11 @@ define("ADMIN_MOAA_SETTING_ROOT_DIV", "moaa_setting_page_root");
 function moaa_settings_init()
 {
 
+
+  //* options will be an array(portalPage=>string, assessmentPage=>string)
   $default = array(
-    "portalPage" => site_url('/portal')
+    "portalPage" => site_url('/portal'),
+    "assessmentPage" => site_url("/assessment")
   );
 
   $schema = array(
@@ -38,6 +41,9 @@ function moaa_settings_init()
       'portalPage' => array(
         'type' => 'string',
       ),
+      'assessmentPage' => array(
+        'type' => 'string',
+      )
     ),
   );
 
@@ -77,10 +83,11 @@ function moaa_options_page_html()
     return;
   }
 
+  $options = get_option('moaa_options');
+  do_action('qm/debug', $options);
 
   ?>
   <div class="wrap">
-    <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
     <div id="<?php echo ADMIN_MOAA_SETTING_ROOT_DIV ?>"></div>
   </div>
   <?php
