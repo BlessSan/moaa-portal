@@ -59,7 +59,6 @@ function moaa_settings_init()
       )
     )
   );
-
 }
 
 add_action('init', 'moaa_settings_init');
@@ -83,6 +82,7 @@ function moaa_options_page_html()
     return;
   }
 
+  //TODO: remove
   $options = get_option('moaa_options');
   do_action('qm/debug', $options);
 
@@ -96,6 +96,12 @@ function moaa_options_page_html()
 add_action('admin_menu', 'moaa_options_page');
 
 
+function moaa_option_change()
+{
+  do_action('qm/debug', "called");
+}
+
+add_action('updated_option', 'moaa_option_change');
 //** ----------------------------------------- REST API SECTION ----------------------------------------- */
 /**
  * This is our callback function that embeds our phrase in a WP_REST_Response
@@ -137,6 +143,14 @@ function moaa_permission_callback($request)
   }
   return new WP_Error('rest_forbidden', esc_html__('OMG you can not view private data.', 'my-text-domain'), array('status' => 401));
 }
+
+//TODO: consider adding extra field for for portal page link and assessment page link
+function get_user_meta_rest_api($user, $field_name)
+{
+  do_action('qm/debug', $field_name);
+  return get_user_meta($user['id'], 'user_type', true);
+}
+
 /**
  * This function is where we register our routes for our example endpoint.
  */
@@ -154,6 +168,7 @@ function moaa_register_example_routes()
     'callback' => 'moaa_get_sheets_data',
     'permission_callback' => 'moaa_permission_callback'
   ));
+  register_rest_field('user', 'user_type', array('get_callback' => 'get_user_meta_rest_api', 'schema' => null));
 }
 
 add_action('rest_api_init', 'moaa_register_example_routes');

@@ -18,6 +18,7 @@ export default function AdminSettingPage() {
     setPortalPage,
     assessmentPage,
     setAssessmentPage,
+    users,
     saveSettings,
   ] = useSettings();
 
@@ -42,6 +43,8 @@ export default function AdminSettingPage() {
             onChange={(value) => setAssessmentPage(value)}
           />
         </PanelBody>
+        {users?.workshop ? <WorkshopsList workshops={users.workshop} /> : null}
+        {users?.partner ? <PartnersList partners={users.partner} /> : null}
       </Panel>
 
       <Button variant="primary" onClick={saveSettings} __next40pxDefaultSize>
@@ -52,11 +55,32 @@ export default function AdminSettingPage() {
   );
 }
 
+const WorkshopsList = ({ workshops }) => {
+  return (
+    <PanelBody title="Workshops">
+      {workshops.map((workshop) => {
+        return <div key={workshop.name}>{workshop.name}</div>;
+      })}
+    </PanelBody>
+  );
+};
+
+const PartnersList = ({ partners }) => {
+  return (
+    <PanelBody title="Partners">
+      {partners.map((partner) => {
+        return <div key={partner.name}>{partner.name}</div>;
+      })}
+    </PanelBody>
+  );
+};
+
 const useSettings = () => {
   const { createSuccessNotice } = useDispatch(noticesStore);
   const [portalPage, setPortalPage] = useState();
   const [assessmentPage, setAssessmentPage] = useState();
   const [pagesOptions, setPages] = useState([]);
+  const [users, setUsers] = useState({ workshop: [], partner: [] });
 
   //** apiFetch handles nonces for auth
   useEffect(() => {
@@ -73,6 +97,17 @@ const useSettings = () => {
     });
     apiFetch({ path: "/wp/v2/users" }).then((users) => {
       console.log(users);
+      users.forEach((user) => {
+        //* user_type field registered by moaa plugin code
+        //* user_type is set on adminAddUser
+        const userType = user.user_type;
+        if (userType) {
+          setUsers((prev) => ({
+            //TODO: add portal link and assessment link
+            [userType]: [{ name: user.name }, ...prev[userType]],
+          }));
+        }
+      });
     });
   }, []);
 
@@ -94,6 +129,7 @@ const useSettings = () => {
     setPortalPage,
     assessmentPage,
     setAssessmentPage,
+    users,
     saveSettings,
   ];
 };
