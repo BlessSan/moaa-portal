@@ -7,7 +7,7 @@
 
 //** ---------------------------------------- CONSTANTS ---------------------------------------- */
 
-define("OPTION_NAME", "moaa-options");
+define("OPTION_NAME", "moaa_options");
 define("BRAND_NAME_META_KEY", "brand_name");
 define("USER_META_WORKSHOP_KEY", "workshop");
 define("USER_META_KEY_USER_TYPE", "user_type");
@@ -15,6 +15,7 @@ define("PORTAL_QUERY_VAR", "brand");
 define("CLIENT_ROLE", "subscriber");
 define("ADMIN_USER_PROFILE_ROOT_DIV", "admin-user-profile-root");
 define("ADMIN_ADD_USER_ROOT_DIV", "admin-add-user-root");
+define("ADMIN_MOAA_SETTING_ROOT_DIV", "moaa_setting_page_root");
 
 
 
@@ -22,11 +23,40 @@ define("ADMIN_ADD_USER_ROOT_DIV", "admin-add-user-root");
 
 //** ---------------------------------------- CUSTOM MENU SECTION ---------------------------------------- */
 
-register_setting(
-  'options',
-  OPTION_NAME,
-  //array $args = []
-);
+
+//* https://developer.wordpress.org/news/2024/03/how-to-use-wordpress-react-components-for-plugin-pages/
+function moaa_settings_init()
+{
+
+  $default = array(
+    "portalPage" => site_url('/portal')
+  );
+
+  $schema = array(
+    'type' => 'object',
+    'properties' => array(
+      'portalPage' => array(
+        'type' => 'string',
+      ),
+    ),
+  );
+
+
+  register_setting(
+    'options',
+    OPTION_NAME,
+    array(
+      'type' => 'object',
+      'default' => $default,
+      'show_in_rest' => array(
+        'schema' => $schema
+      )
+    )
+  );
+
+}
+
+add_action('init', 'moaa_settings_init');
 
 function moaa_options_page()
 {
@@ -51,16 +81,7 @@ function moaa_options_page_html()
   ?>
   <div class="wrap">
     <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
-    <form action="options.php" method="post">
-      <?php
-      settings_fields('options');
-      // output setting sections and their fields
-      // (sections are registered for "moaa", each field is registered to a specific section)
-      do_settings_sections('moaa');
-      // output save settings button
-      submit_button(__('Save Settings', 'textdomain'));
-      ?>
-    </form>
+    <div id="<?php echo ADMIN_MOAA_SETTING_ROOT_DIV ?>"></div>
   </div>
   <?php
 }
@@ -452,10 +473,17 @@ function moaa_admin_react_scripts()
   $asset = include $asset_file;
 
   wp_enqueue_script('moaa_admin_react_script', plugins_url('moaa-react-admin/build/index.js', __FILE__), $asset['dependencies'], $asset['version'], array('in_footer' => true));
+
+  wp_enqueue_style('wp-components');
 }
 
 add_action('admin_enqueue_scripts', 'moaa_admin_react_scripts');
 
+
+function moaa_admin_enqueue_styles()
+{
+
+}
 
 //** ----------------------------------------- ACTIVATION DEACTIVATION ----------------------------------------- */
 
