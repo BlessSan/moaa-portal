@@ -10,6 +10,7 @@
 define("OPTION_NAME", "moaa-options");
 define("BRAND_NAME_META_KEY", "brand_name");
 define("USER_META_WORKSHOP_KEY", "workshop");
+define("USER_META_KEY_USER_TYPE", "user_type");
 define("PORTAL_QUERY_VAR", "brand");
 define("CLIENT_ROLE", "subscriber");
 define("ADMIN_USER_PROFILE_ROOT_DIV", "admin-user-profile-root");
@@ -247,15 +248,12 @@ function moaa_workshop_field()
   //* insert react component for adding new user page
   ?>
   <div id="<?php echo ADMIN_ADD_USER_ROOT_DIV ?>"></div>
-  <div>Workshop (optional)</div>
-  <label for="moaa_workshop">
-    <input style="width: auto;" type="text" name="moaa_workshop" id="moaa_workshop" />
-  </label>
   <?php
 }
 //* add custom field when admin add new user
 add_action('user_new_form', 'moaa_workshop_field');
 
+//! EVALUATE! MAYBE NOT NEEDED
 function moaa_edit_user_profile($profile_user)
 {
 
@@ -281,8 +279,8 @@ add_action('edit_user_profile', 'moaa_edit_user_profile');
 function moaa_user_created($user_id)
 {
   if (!is_wp_error($user_id)) {
-    if (isset($_POST['moaa_workshop'])) {
-      add_user_meta($user_id, USER_META_WORKSHOP_KEY, sanitize_text_field($_POST['moaa_workshop']));
+    if (isset($_POST['moaa_user_type'])) {
+      add_user_meta($user_id, USER_META_KEY_USER_TYPE, sanitize_text_field($_POST['moaa_user_type']));
     }
   }
 }
