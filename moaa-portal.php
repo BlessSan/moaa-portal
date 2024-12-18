@@ -279,8 +279,10 @@ add_action('edit_user_profile', 'moaa_edit_user_profile');
 function moaa_user_created($user_id)
 {
   if (!is_wp_error($user_id)) {
-    if (isset($_POST['moaa_user_type'])) {
-      add_user_meta($user_id, USER_META_KEY_USER_TYPE, sanitize_text_field($_POST['moaa_user_type']));
+    $user_type = $_POST['moaa_user_type'];
+    if (isset($user_type)) {
+      add_user_meta($user_id, USER_META_KEY_USER_TYPE, sanitize_text_field($user_type));
+      //TODO generate workshop/partner link
     }
   }
 }
