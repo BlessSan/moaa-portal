@@ -89,13 +89,15 @@ const useSettings = () => {
       setPortalPage(settings.moaa_options.portalPage);
       setAssessmentPage(settings.moaa_options.assessmentPage);
     });
-    apiFetch({ path: "/wp/v2/pages" }).then((pages) => {
+    apiFetch({ path: "/wp/v2/pages?_fields=slug" }).then((pages) => {
+      console.log(pages);
       pages.forEach((page) => {
         const slug = page.slug;
         setPages((prev) => [{ label: slug, value: slug }, ...prev]);
       });
     });
-    apiFetch({ path: "/wp/v2/users" }).then((users) => {
+    //* add field for other important fields like portal/assessment link
+    apiFetch({ path: "/wp/v2/users?_fields=user_type,name" }).then((users) => {
       console.log(users);
       users.forEach((user) => {
         //* user_type field registered by moaa plugin code
@@ -104,7 +106,8 @@ const useSettings = () => {
         if (userType) {
           setUsers((prev) => ({
             //TODO: add portal link and assessment link
-            [userType]: [{ name: user.name }, ...prev[userType]],
+            ...prev,
+            [userType]: [...prev[userType], { name: user.name }],
           }));
         }
       });
