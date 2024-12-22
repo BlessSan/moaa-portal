@@ -414,10 +414,11 @@ add_filter('registration_redirect', 'moaa_registration_redirect', 10, 2);
 
 function moaa_client_login_redirect($redirect_to, $request, $user)
 {
-  if (!is_wp_error($user)) {
-    $brand_name = get_user_meta($user->get('ID'), BRAND_NAME_META_KEY, true);
-    if ($brand_name && $user->has_cap(CLIENT_ROLE)) {
-      return add_query_arg(PORTAL_QUERY_VAR, $brand_name, site_url('client-portal'));
+  if (!is_wp_error($user) && !current_user_can('administrator')) {
+    $user_links = get_user_meta($user->ID, USER_META_KEY_USER_LINK_ARRAY, true)[USER_META_KEY_USER_LINK_PORTAL];
+    if (is_array($user_links) && $user->has_cap(CLIENT_ROLE)) {
+      $portal_link = $user_links[USER_META_KEY_USER_LINK_PORTAL];
+      return $portal_link;
     }
   }
   return $redirect_to;
@@ -458,32 +459,44 @@ add_action('wp_head', 'moaa_check_page');
  */
 function moaa_portal_redirect()
 {
-  $is_client_portal = is_page('client-portal');
-  if ($is_client_portal) {
-    //** redirect if not logged in
-    //auth_redirect();
-    if (!current_user_can('administrator')) {
-      //TODO: consider programmatically get page name of portal 
-      $brand = get_query_var(PORTAL_QUERY_VAR, false);
-      $user_id = get_current_user_id();
-      $user_brand_name = get_user_meta($user_id, BRAND_NAME_META_KEY, true);
+  $options = get_option(MOAA_OPTION_NAME);
+  $is_portal = is_page($options[MOAA_PORTAL_PAGE_OPTION_KEY]);
+  if ($is_portal) {
+    if (!is_user_logged_in()) {
+      //** redirect if not logged in
+      auth_redirect();
+    } else {
+      $user = wp_get_current_user();
+      $user_id = $user->ID;
+      $user_links = get_user_meta($user_id, USER_META_KEY_USER_LINK_ARRAY, true);
+      if (is_array($user_links)) {
 
-      //* redirect to user's registered brand name
-      if (empty($brand) || $user_brand_name != $brand) {
-        $brand_name = get_user_meta($user_id, BRAND_NAME_META_KEY, true);
-        $url = add_query_arg(PORTAL_QUERY_VAR, $brand_name, site_url('client-portal'));
-        wp_safe_redirect($url);
-        exit;
+        //TODO: consider programmatically get page name of portal 
+        $query_param_workshop = get_query_var('workshop', false);
+        $query_param_partner = get_query_var('partner', false);
+        $query_param = $query_param_workshop ? $query_param_workshop : $query_param_partner;
+        //! user identifier is set to nicename when registered. if registration logic change dont for get to change this
+        $user_identifier = $user->user_nicename;
+
+        //* redirect to user's registered brand name
+        if (empty($query_param) || $query_param !== $user_identifier) {
+          $user_portal_link = $user_links[USER_META_KEY_USER_LINK_PORTAL];
+          wp_safe_redirect($user_portal_link);
+          exit;
+        }
       }
     }
   }
 }
 
+
+
 add_action('template_redirect', 'moaa_portal_redirect');
 
 function moaa_client_portal_query_vars($qvars)
 {
-  $qvars[] = 'brand';
+  $qvars[] = 'workshop';
+  $qvars[] = 'partner';
   return $qvars;
 }
 
@@ -496,10 +509,10 @@ function enqueue_react_scripts()
   //* could be done from here by not queueing the script
   //* or from react
   $brand = get_query_var(PORTAL_QUERY_VAR);
+  $portal_page = get_option(MOAA_OPTION_NAME)[MOAA_PORTAL_PAGE_OPTION_KEY];
 
   //TODO: programmatically read portal page
-  $react_script_page = 'client-portal';
-  if (is_page($react_script_page) && !empty($brand)) {
+  if (is_page($portal_page)) {
     $react_build_dir = plugin_dir_path(__FILE__) . 'moaa-portal-table/build/';
     $react_build_url = plugins_url('/moaa-portal-table/build', __FILE__);
     $asset_manifest = json_decode(file_get_contents($react_build_dir . 'asset-manifest.json'));
@@ -514,9 +527,9 @@ function enqueue_react_scripts()
         wp_enqueue_script('moaa_react_script', $resource_url, [], '1.0.0', true);
 
         //** pass the user meta uuid (generated when register) to react script 
-        $user_uuid = get_user_meta(get_current_user_id(), 'sheets-id', true);
+        //$user_uuid = get_user_meta(get_current_user_id(), 'sheets-id', true);
         wp_add_inline_script('moaa_react_script', 'const USER = ' . json_encode(array(
-          'id' => $user_uuid
+          'id' => "placeholder_id"
         )), 'before');
       }
     }
