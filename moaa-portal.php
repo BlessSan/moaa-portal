@@ -7,17 +7,22 @@
 
 //** ---------------------------------------- CONSTANTS ---------------------------------------- */
 
-define("OPTION_NAME", "moaa_options");
+define("MOAA_OPTION_NAME", "moaa_options");
 define("BRAND_NAME_META_KEY", "brand_name");
 define("USER_META_WORKSHOP_KEY", "workshop");
 define("USER_META_KEY_USER_TYPE", "user_type");
+define("USER_META_KEY_USER_LINK_ARRAY", "user_link_array");
+define("USER_META_KEY_USER_LINK_PORTAL", "portalPage");
+define("USER_META_KEY_USER_LINK_ASSESSMENT", "assessmentPage");
 define("PORTAL_QUERY_VAR", "brand");
 define("CLIENT_ROLE", "subscriber");
 define("ADMIN_USER_PROFILE_ROOT_DIV", "admin-user-profile-root");
 define("ADMIN_ADD_USER_ROOT_DIV", "admin-add-user-root");
 define("ADMIN_MOAA_SETTING_ROOT_DIV", "moaa_setting_page_root");
-
-
+define("MOAA_PORTAL_PAGE_OPTION_KEY", "portalPage");
+define("MOAA_ASSESSMENT_PAGE_OPTION_KEY", "assessmentPage");
+define("USER_TYPE_WORKSHOP", "workshop");
+define("USER_TYPE_PARTNER", "partner");
 
 
 
@@ -31,17 +36,17 @@ function moaa_settings_init()
 
   //* options will be an array(portalPage=>string, assessmentPage=>string)
   $default = array(
-    "portalPage" => site_url('/portal'),
-    "assessmentPage" => site_url("/assessment")
+    MOAA_PORTAL_PAGE_OPTION_KEY => 'portal',
+    MOAA_ASSESSMENT_PAGE_OPTION_KEY => 'assessment'
   );
 
   $schema = array(
     'type' => 'object',
     'properties' => array(
-      'portalPage' => array(
+      MOAA_PORTAL_PAGE_OPTION_KEY => array(
         'type' => 'string',
       ),
-      'assessmentPage' => array(
+      MOAA_ASSESSMENT_PAGE_OPTION_KEY => array(
         'type' => 'string',
       )
     ),
@@ -50,7 +55,7 @@ function moaa_settings_init()
 
   register_setting(
     'options',
-    OPTION_NAME,
+    MOAA_OPTION_NAME,
     array(
       'type' => 'object',
       'default' => $default,
@@ -83,7 +88,7 @@ function moaa_options_page_html()
   }
 
   //TODO: remove
-  $options = get_option('moaa_options');
+  $options = get_option(MOAA_OPTION_NAME);
   do_action('qm/debug', $options);
 
   ?>
@@ -96,12 +101,25 @@ function moaa_options_page_html()
 add_action('admin_menu', 'moaa_options_page');
 
 
-function moaa_option_change()
+function moaa_option_change($option, $old_value, $new_value)
 {
-  do_action('qm/debug', "called");
+
+
+  if ($option === MOAA_OPTION_NAME) {
+    $user_ids = get_users(args: array('meta_key' => USER_META_KEY_USER_LINK_ARRAY, 'fields' => 'ID'));
+    if (count($user_ids) > 0) {
+      foreach ($user_ids as $user_id) {
+        $user_type = get_user_meta($user_id, USER_META_KEY_USER_TYPE, true);
+        $moaa_option = get_option($option);
+        set_user_link_meta($user_id, $user_type, $moaa_option);
+      }
+    }
+  }
+
+  //set_user_link_meta($user_id, $user_type, $moaa_option);
 }
 
-add_action('updated_option', 'moaa_option_change');
+add_action('updated_option', 'moaa_option_change', 10, 3);
 //** ----------------------------------------- REST API SECTION ----------------------------------------- */
 /**
  * This is our callback function that embeds our phrase in a WP_REST_Response
@@ -147,8 +165,7 @@ function moaa_permission_callback($request)
 //TODO: consider adding extra field for for portal page link and assessment page link
 function get_user_meta_rest_api($user, $field_name)
 {
-  do_action('qm/debug', $field_name);
-  return get_user_meta($user['id'], 'user_type', true);
+  return array('user_type' => get_user_meta($user['id'], USER_META_KEY_USER_TYPE, true), 'page_url' => get_user_meta($user['id'], USER_META_KEY_USER_LINK_ARRAY, true));
 }
 
 /**
@@ -168,7 +185,7 @@ function moaa_register_example_routes()
     'callback' => 'moaa_get_sheets_data',
     'permission_callback' => 'moaa_permission_callback'
   ));
-  register_rest_field('user', 'user_type', array('get_callback' => 'get_user_meta_rest_api', 'schema' => null));
+  register_rest_field('user', 'user_info', array('get_callback' => 'get_user_meta_rest_api', 'schema' => null));
 }
 
 add_action('rest_api_init', 'moaa_register_example_routes');
@@ -266,6 +283,7 @@ add_filter('registration_errors', 'moaa_brand_name_validation', 10, 3);
 
 
 
+//! MAY NOT BE NEEDED SINCE ADMIN IS THE ONE THAT REGISTERS
 function moaa_user_register($user_id)
 {
   if (isset($_POST['brand-name'])) {
@@ -318,14 +336,47 @@ function moaa_edit_user_profile($profile_user)
 add_action('edit_user_profile', 'moaa_edit_user_profile');
 
 
+/**
+ * sets user link meta user_link_array with its value being an array of links for assessment page and portal page
+ * @param mixed $user_id
+ * @param mixed $user_type
+ * @param mixed $moaa_option
+ * @return void
+ */
+function set_user_link_meta($user_id, $user_type, $moaa_option)
+{
+  $user = get_userdata($user_id);
+  do_action('qm/notice', $user);
+  if ($user) {
+    $query_param = '';
+    //TODO: EVALUATE GOOD VALUE TO USE AS QUERY PARAM VALUE
+    $identifier_name = urlencode($user->user_nicename);
+    if ($user_type === USER_TYPE_WORKSHOP) {
+      //** find way to avoid hardcode query param
+      $query_param = 'workshop';
+    } else if ($user_type === USER_TYPE_PARTNER) {
+      $query_param = 'partner';
+    }
+    $portal_page = add_query_arg($query_param, $identifier_name, home_url('/' . $moaa_option[MOAA_PORTAL_PAGE_OPTION_KEY]));
+    $assessment_page = add_query_arg($query_param, $identifier_name, home_url('/' . $moaa_option[MOAA_ASSESSMENT_PAGE_OPTION_KEY]));
+    $meta_value = array(MOAA_ASSESSMENT_PAGE_OPTION_KEY => $assessment_page, MOAA_PORTAL_PAGE_OPTION_KEY => $portal_page);
+
+    update_user_meta($user_id, USER_META_KEY_USER_LINK_ARRAY, $meta_value);
+
+  }
+}
+
 //* user created when admin add
 function moaa_user_created($user_id)
 {
   if (!is_wp_error($user_id)) {
     $user_type = $_POST['moaa_user_type'];
+    $moaa_option = get_option(MOAA_OPTION_NAME);
     if (isset($user_type)) {
       add_user_meta($user_id, USER_META_KEY_USER_TYPE, sanitize_text_field($user_type));
-      //TODO generate workshop/partner link
+      if (isset($moaa_option)) {
+        set_user_link_meta($user_id, $user_type, $moaa_option);
+      }
     }
   }
 }
@@ -539,7 +590,7 @@ register_deactivation_hook(
 
 function moaa_uninstall_plugin()
 {
-  delete_option(OPTION_NAME);
+  delete_option(MOAA_OPTION_NAME);
 }
 
 register_uninstall_hook(

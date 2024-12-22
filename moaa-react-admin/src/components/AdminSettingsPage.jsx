@@ -59,7 +59,13 @@ const WorkshopsList = ({ workshops }) => {
   return (
     <PanelBody title="Workshops">
       {workshops.map((workshop) => {
-        return <div key={workshop.name}>{workshop.name}</div>;
+        return (
+          <div key={workshop.name}>
+            <div>{workshop.name}</div>
+            <div>portal page: {workshop.portalPage}</div>
+            <div>assessment Page : {workshop.assessmentPage}</div>
+          </div>
+        );
       })}
     </PanelBody>
   );
@@ -69,7 +75,13 @@ const PartnersList = ({ partners }) => {
   return (
     <PanelBody title="Partners">
       {partners.map((partner) => {
-        return <div key={partner.name}>{partner.name}</div>;
+        return (
+          <div key={partner.name}>
+            <div>{partner.name}</div>
+            <div>portal page: {partner.portalPage}</div>
+            <div>assessment Page : {partner.assessmentPage}</div>
+          </div>
+        );
       })}
     </PanelBody>
   );
@@ -81,6 +93,18 @@ const useSettings = () => {
   const [assessmentPage, setAssessmentPage] = useState();
   const [pagesOptions, setPages] = useState([]);
   const [users, setUsers] = useState({ workshop: [], partner: [] });
+
+  const saveSettings = () => {
+    apiFetch({
+      path: "/wp/v2/settings",
+      method: "POST",
+      data: {
+        moaa_options: { portalPage, assessmentPage },
+      },
+    }).then(() => {
+      createSuccessNotice("Settings Saved");
+    });
+  };
 
   //** apiFetch handles nonces for auth
   useEffect(() => {
@@ -97,34 +121,31 @@ const useSettings = () => {
       });
     });
     //* add field for other important fields like portal/assessment link
-    apiFetch({ path: "/wp/v2/users?_fields=user_type,name" }).then((users) => {
+    apiFetch({ path: "/wp/v2/users?_fields=user_info,name" }).then((users) => {
       console.log(users);
       users.forEach((user) => {
         //* user_type field registered by moaa plugin code
         //* user_type is set on adminAddUser
-        const userType = user.user_type;
+        const userType = user.user_info.user_type;
+        const userPortalPage = user.user_info.page_url.portalPage;
+        const userAssessmentPage = user.user_info.page_url.assessmentPage;
         if (userType) {
           setUsers((prev) => ({
             //TODO: add portal link and assessment link
             ...prev,
-            [userType]: [...prev[userType], { name: user.name }],
+            [userType]: [
+              ...prev[userType],
+              {
+                name: user.name,
+                portalPage: userPortalPage,
+                assessmentPage: userAssessmentPage,
+              },
+            ],
           }));
         }
       });
     });
   }, []);
-
-  const saveSettings = () => {
-    apiFetch({
-      path: "/wp/v2/settings",
-      method: "POST",
-      data: {
-        moaa_options: { portalPage, assessmentPage },
-      },
-    }).then(() => {
-      createSuccessNotice("Settings Saved");
-    });
-  };
 
   return [
     pagesOptions,
