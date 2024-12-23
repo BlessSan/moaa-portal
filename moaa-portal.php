@@ -143,20 +143,27 @@ function moaa_get_sheets_data($request)
   do_action('qm/debug', $current_user_id);
   //TODO: handle id
   //TODO: programmatically handle moaa sheets url
-  //TODO: error handling
+
   $url_params = $request->get_query_params();
   $id_query_param = '?quiz_id=' . $url_params['id'];
   $moaa_sheets_url = 'https://script.google.com/macros/s/AKfycbzdzoerpbv0MZqP-HX47MjwanmoSqS7zm39e2neploJglFiE18SjoVL1uhWxfGe1zmN/exec';
   $response = wp_remote_get($moaa_sheets_url . $id_query_param);
 
-  return rest_ensure_response($response);
+  //TODO: error handling
+  if (is_wp_error($response)) {
+    return new WP_Error();
+  }
+
+
+  $body = wp_remote_retrieve_body($response);
+  return rest_ensure_response($body);
 }
 
 function moaa_permission_callback($request)
 {
   do_action('qm/debug', 'permission callback called');
   $url_params = $request->get_query_params();
-  if ($url_params['id']) {
+  if ($url_params['id'] && is_user_logged_in()) {
     return true;
   }
   return new WP_Error('rest_forbidden', esc_html__('OMG you can not view private data.', 'my-text-domain'), array('status' => 401));
@@ -173,13 +180,6 @@ function get_user_meta_rest_api($user, $field_name)
  */
 function moaa_register_example_routes()
 {
-  // register_rest_route() handles more arguments but we are going to stick to the basics for now.
-  register_rest_route('hello-world/v1', '/phrase', array(
-    // By using this constant we ensure that when the WP_REST_Server changes our readable endpoints will work as intended.
-    'methods' => WP_REST_Server::READABLE,
-    // Here we register our callback. The callback is fired when this endpoint is matched by the WP_REST_Server class.
-    'callback' => 'moaa_get_endpoint_phrase',
-  ));
   register_rest_route('moaa-sheets/v1', '/get', args: array(
     'methods' => WP_REST_Server::READABLE,
     'callback' => 'moaa_get_sheets_data',
@@ -515,7 +515,8 @@ function enqueue_react_scripts()
     return;
   }
 
-  if (is_page($portal_page)) {
+  if (is_page($portal_page) && is_user_logged_in()) {
+    $user = wp_get_current_user();
 
     $asset_file = plugin_dir_path(__FILE__) . 'moaa-react-portal/build/index.asset.php';
 
@@ -527,7 +528,8 @@ function enqueue_react_scripts()
 
     wp_enqueue_script('moaa_react_portal_script', plugins_url('moaa-react-portal/build/index.js', __FILE__), $asset['dependencies'], $asset['version'], array('in_footer' => true));
     wp_add_inline_script('moaa_react_portal_script', 'const USER = ' . json_encode(array(
-      'id' => "placeholder_id"
+      'id' => $user->user_nicename,
+      'nonce' => wp_create_nonce('wp_rest')
     )), 'before');
   }
 }

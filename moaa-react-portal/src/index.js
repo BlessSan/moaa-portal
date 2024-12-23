@@ -24,9 +24,10 @@ const fetchMoaaSheetsData = async () => {
     const response = await axios.get(url, {
       // eslint-disable-next-line no-undef
       params: { id: USER.id },
+      headers: { "X-WP-nonce": USER.nonce },
     });
     console.log(response);
-    const resultData = JSON.parse(response.data.body);
+    const resultData = JSON.parse(response.data);
     return resultData.data;
   } catch (error) {
     console.log(error);
