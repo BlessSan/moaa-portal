@@ -589,8 +589,10 @@ function moaa_activate()
 function moaa_deactivate()
 {
   // Do some unregistering
-  wp_dequeue_script('moaa_react_script');
-  wp_dequeue_style('moaa_react_styles');
+  wp_dequeue_script('moaa_react_portal_script');
+  //wp_dequeue_style('moaa_react_portal_styles');
+  wp_dequeue_script('moaa_admin_react_script');
+  //wp_dequeue_style('moaa_admin_react_styles');
   // Clear the permalinks to remove our post type's rules from the database.
   flush_rewrite_rules();
 }
