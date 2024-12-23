@@ -511,28 +511,24 @@ function enqueue_react_scripts()
   $brand = get_query_var(PORTAL_QUERY_VAR);
   $portal_page = get_option(MOAA_OPTION_NAME)[MOAA_PORTAL_PAGE_OPTION_KEY];
 
-  //TODO: programmatically read portal page
+  if (is_admin()) {
+    return;
+  }
+
   if (is_page($portal_page)) {
-    $react_build_dir = plugin_dir_path(__FILE__) . 'moaa-portal-table/build/';
-    $react_build_url = plugins_url('/moaa-portal-table/build', __FILE__);
-    $asset_manifest = json_decode(file_get_contents($react_build_dir . 'asset-manifest.json'));
 
-    foreach ($asset_manifest->entrypoints as $entrypoint) {
-      $resource_url = $react_build_url . '/' . $entrypoint;
-      if (str_ends_with($resource_url, '.css')) {
-        wp_enqueue_style('moaa_react_styles', $resource_url, [], '1.0.0');
-      }
-      // TODO: review if passing user uuid to script is acceptable
-      if (str_ends_with($resource_url, '.js')) {
-        wp_enqueue_script('moaa_react_script', $resource_url, [], '1.0.0', true);
+    $asset_file = plugin_dir_path(__FILE__) . 'moaa-react-portal/build/index.asset.php';
 
-        //** pass the user meta uuid (generated when register) to react script 
-        //$user_uuid = get_user_meta(get_current_user_id(), 'sheets-id', true);
-        wp_add_inline_script('moaa_react_script', 'const USER = ' . json_encode(array(
-          'id' => "placeholder_id"
-        )), 'before');
-      }
+    if (!file_exists($asset_file)) {
+      return;
     }
+
+    $asset = include $asset_file;
+
+    wp_enqueue_script('moaa_react_portal_script', plugins_url('moaa-react-portal/build/index.js', __FILE__), $asset['dependencies'], $asset['version'], array('in_footer' => true));
+    wp_add_inline_script('moaa_react_portal_script', 'const USER = ' . json_encode(array(
+      'id' => "placeholder_id"
+    )), 'before');
   }
 }
 

@@ -1,5 +1,7 @@
 /moaa-portal-table/
 /moaa-react-admin/node_modules/
 /moaa-react-admin/build/
+/moaa-react-portal/node_modules/
+/moaa-react-portal/build/
 /build/
 /node_modules/
