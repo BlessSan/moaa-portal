@@ -21,6 +21,7 @@ define("ADMIN_ADD_USER_ROOT_DIV", "admin-add-user-root");
 define("ADMIN_MOAA_SETTING_ROOT_DIV", "moaa_setting_page_root");
 define("MOAA_PORTAL_PAGE_OPTION_KEY", "portalPage");
 define("MOAA_ASSESSMENT_PAGE_OPTION_KEY", "assessmentPage");
+define("MOAA_SHEETS_URL_OPTION_KEY", "sheetsUrl");
 define("USER_TYPE_WORKSHOP", "workshop");
 define("USER_TYPE_PARTNER", "partner");
 
@@ -37,7 +38,8 @@ function moaa_settings_init()
   //* options will be an array(portalPage=>string, assessmentPage=>string)
   $default = array(
     MOAA_PORTAL_PAGE_OPTION_KEY => 'portal',
-    MOAA_ASSESSMENT_PAGE_OPTION_KEY => 'assessment'
+    MOAA_ASSESSMENT_PAGE_OPTION_KEY => 'assessment',
+    MOAA_SHEETS_URL_OPTION_KEY => '',
   );
 
   $schema = array(
@@ -48,6 +50,9 @@ function moaa_settings_init()
       ),
       MOAA_ASSESSMENT_PAGE_OPTION_KEY => array(
         'type' => 'string',
+      ),
+      MOAA_SHEETS_URL_OPTION_KEY => array(
+        'type' => 'string'
       )
     ),
   );
@@ -143,20 +148,24 @@ function moaa_get_sheets_data($request)
   do_action('qm/debug', $current_user_id);
   //TODO: handle id
   //TODO: programmatically handle moaa sheets url
-
+  $options = get_option(MOAA_OPTION_NAME);
   $url_params = $request->get_query_params();
   $id_query_param = '?quiz_id=' . $url_params['id'];
-  $moaa_sheets_url = 'https://script.google.com/macros/s/AKfycbzdzoerpbv0MZqP-HX47MjwanmoSqS7zm39e2neploJglFiE18SjoVL1uhWxfGe1zmN/exec';
-  $response = wp_remote_get($moaa_sheets_url . $id_query_param);
+  $moaa_sheets_url = $options[MOAA_SHEETS_URL_OPTION_KEY];
+  if ($moaa_sheets_url) {
+    $response = wp_remote_get($moaa_sheets_url . $id_query_param);
 
-  //TODO: error handling
-  if (is_wp_error($response)) {
+    //TODO: error handling
+    if (is_wp_error($response)) {
+      return new WP_Error();
+    }
+
+    $body = wp_remote_retrieve_body($response);
+    return rest_ensure_response($body);
+  } else {
+    //TODO: handle error when url empty
     return new WP_Error();
   }
-
-
-  $body = wp_remote_retrieve_body($response);
-  return rest_ensure_response($body);
 }
 
 function moaa_permission_callback($request)

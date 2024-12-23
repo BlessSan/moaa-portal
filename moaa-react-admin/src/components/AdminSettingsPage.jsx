@@ -6,6 +6,7 @@ import {
   SelectControl,
   Button,
   NoticeList,
+  TextControl,
 } from "@wordpress/components";
 import { useEffect, useState } from "@wordpress/element";
 import { store as noticesStore } from "@wordpress/notices";
@@ -18,6 +19,8 @@ export default function AdminSettingPage() {
     setPortalPage,
     assessmentPage,
     setAssessmentPage,
+    sheetsUrl,
+    setSheetsUrl,
     users,
     saveSettings,
   ] = useSettings();
@@ -41,6 +44,13 @@ export default function AdminSettingPage() {
             value={assessmentPage}
             options={pages}
             onChange={(value) => setAssessmentPage(value)}
+          />
+          <TextControl
+            __nextHasNoMarginBottom
+            __next40pxDefaultSize
+            label="Sheets url"
+            onChange={(value) => setSheetsUrl(value)}
+            value={sheetsUrl}
           />
         </PanelBody>
         {users?.workshop ? <WorkshopsList workshops={users.workshop} /> : null}
@@ -91,6 +101,7 @@ const useSettings = () => {
   const { createSuccessNotice } = useDispatch(noticesStore);
   const [portalPage, setPortalPage] = useState();
   const [assessmentPage, setAssessmentPage] = useState();
+  const [sheetsUrl, setSheetsUrl] = useState("");
   const [pagesOptions, setPages] = useState([]);
   const [users, setUsers] = useState({ workshop: [], partner: [] });
 
@@ -99,7 +110,7 @@ const useSettings = () => {
       path: "/wp/v2/settings",
       method: "POST",
       data: {
-        moaa_options: { portalPage, assessmentPage },
+        moaa_options: { portalPage, assessmentPage, sheetsUrl },
       },
     }).then(() => {
       createSuccessNotice("Settings Saved");
@@ -112,6 +123,7 @@ const useSettings = () => {
       console.log(settings);
       setPortalPage(settings.moaa_options.portalPage);
       setAssessmentPage(settings.moaa_options.assessmentPage);
+      setSheetsUrl(settings.moaa_options.sheetsUrl);
     });
     apiFetch({ path: "/wp/v2/pages?_fields=slug" }).then((pages) => {
       console.log(pages);
@@ -131,7 +143,6 @@ const useSettings = () => {
         const userAssessmentPage = user.user_info.page_url.assessmentPage;
         if (userType) {
           setUsers((prev) => ({
-            //TODO: add portal link and assessment link
             ...prev,
             [userType]: [
               ...prev[userType],
@@ -153,6 +164,8 @@ const useSettings = () => {
     setPortalPage,
     assessmentPage,
     setAssessmentPage,
+    sheetsUrl,
+    setSheetsUrl,
     users,
     saveSettings,
   ];
