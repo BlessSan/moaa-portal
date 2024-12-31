@@ -19,11 +19,13 @@ const queryClient = new QueryClient();
 //* https://tanstack.com/query/latest/docs/framework/react/guides/query-functions
 const fetchMoaaSheetsData = async () => {
   //* body will be {data:[]}
-  const url = "https://moaa-portal-test.local/wp-json/moaa-sheets/v1/get";
+  const url =
+    "https://moaa-portal-test.local/wp-json/moaa-sheets/v1/getWorkshopResults";
   try {
     const response = await axios.get(url, {
       // eslint-disable-next-line no-undef
-      params: { id: USER.id },
+      //TODO: map dropdown value to params
+      params: { workshop_id: "dropdown value" },
       headers: { "X-WP-nonce": USER.nonce },
     });
     console.log(response);
@@ -33,6 +35,31 @@ const fetchMoaaSheetsData = async () => {
     console.log(error);
     return error;
   }
+};
+
+const fetchMoaaWorkshopsList = async () => {
+  const url =
+    "https://moaa-portal-test.local/wp-json/moaa-sheets/v1/getWorkshopsList";
+  try {
+    const response = await axios.get(url, {
+      // eslint-disable-next-line no-undef
+      headers: { "X-WP-nonce": USER.nonce },
+    });
+    console.log(response);
+    const resultData = JSON.parse(response.data);
+    return resultData.data;
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
+const WorkshopListDropdown = () => {
+  useEffect(() => {
+    fetchMoaaWorkshopsList();
+  }, []);
+
+  return <div>dropdown</div>;
 };
 
 function MoaaResultTable() {
@@ -47,6 +74,7 @@ function MoaaResultTable() {
   } = useQuery({
     queryKey: ["tableData"],
     queryFn: fetchMoaaSheetsData,
+    enabled: workshopId,
   });
 
   const columns = useMemo(
@@ -74,6 +102,7 @@ function MoaaResultTable() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
+      <WorkshopListDropdown />
       <MoaaResultTable />
     </QueryClientProvider>
   );

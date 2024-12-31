@@ -150,14 +150,32 @@ function moaa_get_sheets_data($request)
   //TODO: programmatically handle moaa sheets url
   $options = get_option(MOAA_OPTION_NAME);
   $url_params = $request->get_query_params();
-  $id_query_param = '?quiz_id=' . $url_params['id'];
+  $id_query_param = '?action=getWorkshopResults?workshop_id=' . $url_params['workshop_id'];
   $moaa_sheets_url = $options[MOAA_SHEETS_URL_OPTION_KEY];
   if ($moaa_sheets_url) {
     $response = wp_remote_get($moaa_sheets_url . $id_query_param);
 
-    //TODO: error handling
     if (is_wp_error($response)) {
-      return new WP_Error();
+      return rest_ensure_response($response);
+    }
+
+    $body = wp_remote_retrieve_body($response);
+    return rest_ensure_response($body);
+  } else {
+    //TODO: handle error when url empty
+    return new WP_Error();
+  }
+}
+
+function moaa_get_workshops_list($request)
+{
+  $options = get_option(MOAA_OPTION_NAME);
+  $moaa_sheets_url = $options[MOAA_SHEETS_URL_OPTION_KEY];
+  if ($moaa_sheets_url) {
+    $response = wp_remote_get($moaa_sheets_url . '?action=getWorkshops');
+
+    if (is_wp_error($response)) {
+      return rest_ensure_response($response);
     }
 
     $body = wp_remote_retrieve_body($response);
@@ -171,11 +189,10 @@ function moaa_get_sheets_data($request)
 function moaa_permission_callback($request)
 {
   do_action('qm/debug', 'permission callback called');
-  $url_params = $request->get_query_params();
-  if ($url_params['id'] && is_user_logged_in()) {
+  if (is_user_logged_in()) {
     return true;
   }
-  return new WP_Error('rest_forbidden', esc_html__('OMG you can not view private data.', 'my-text-domain'), array('status' => 401));
+  return new WP_Error('rest_forbidden', esc_html__('Not authorized', 'my-text-domain'), array('status' => 401));
 }
 
 //TODO: consider adding extra field for for portal page link and assessment page link
@@ -189,9 +206,14 @@ function get_user_meta_rest_api($user, $field_name)
  */
 function moaa_register_example_routes()
 {
-  register_rest_route('moaa-sheets/v1', '/get', args: array(
+  register_rest_route('moaa-sheets/v1', '/getWorkshopResults', args: array(
     'methods' => WP_REST_Server::READABLE,
     'callback' => 'moaa_get_sheets_data',
+    'permission_callback' => 'moaa_permission_callback'
+  ));
+  register_rest_route('moaa-sheets/v1', '/getWorkshopsList', args: array(
+    'methods' => WP_REST_Server::READABLE,
+    'callback' => 'moaa_get_workshops_list',
     'permission_callback' => 'moaa_permission_callback'
   ));
   register_rest_field('user', 'user_info', array('get_callback' => 'get_user_meta_rest_api', 'schema' => null));
