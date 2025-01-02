@@ -150,7 +150,7 @@ function moaa_get_sheets_data($request)
   //TODO: programmatically handle moaa sheets url
   $options = get_option(MOAA_OPTION_NAME);
   $url_params = $request->get_query_params();
-  $id_query_param = '?action=getWorkshopResults?workshop_id=' . $url_params['workshop_id'];
+  $id_query_param = '?action=getWorkshopResults&workshop_id=' . $url_params['workshop_id'];
   $moaa_sheets_url = $options[MOAA_SHEETS_URL_OPTION_KEY];
   if ($moaa_sheets_url) {
     $response = wp_remote_get($moaa_sheets_url . $id_query_param);
