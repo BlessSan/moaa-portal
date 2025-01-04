@@ -11,6 +11,28 @@ import {
 import { useEffect, useState } from "@wordpress/element";
 import { store as noticesStore } from "@wordpress/notices";
 import { useDispatch, useSelect } from "@wordpress/data";
+import { CopyToClipboard } from "react-copy-to-clipboard";
+
+const DisplayShortCodeTip = () => {
+  const [isCopied, setIsCopied] = useState(false);
+
+  const shortcodeName = USER.shortcode_name;
+
+  return (
+    <Tip>
+      To display the data, please insert this shortcode inside a container into
+      the selected selected page: <b>[{shortcodeName}]</b>{" "}
+      <CopyToClipboard
+        text={`[${shortcodeName}]`}
+        onCopy={() => setIsCopied(true)}
+      >
+        <Button size="compact" variant="secondary">
+          {isCopied ? "Copied!" : "Copy"}
+        </Button>
+      </CopyToClipboard>
+    </Tip>
+  );
+};
 
 export default function AdminSettingPage() {
   const [
@@ -23,35 +45,45 @@ export default function AdminSettingPage() {
   ] = useSettings();
 
   return (
-    <>
+    <div style={{ boxSizing: "border-box" }}>
       <Panel header="MOAA Portal Settings Page">
         <PanelBody title="Page select">
-          <SelectControl
-            __next40pxDefaultSize
-            __nextHasNoMarginBottom
-            label="Select Portal Page"
-            value={portalPage}
-            options={pages}
-            onChange={(value) => setPortalPage(value)}
-          />
-          <Tip>
-            To display the data, please insert this shortcode inside a container
-            into the selected selected page: <b>[{USER.shortcode_name}]</b>
-          </Tip>
-          <TextControl
-            __nextHasNoMarginBottom
-            __next40pxDefaultSize
-            label="Sheets url"
-            onChange={(value) => setSheetsUrl(value)}
-            value={sheetsUrl}
-          />
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "10px",
+            }}
+          >
+            <SelectControl
+              __next40pxDefaultSize
+              __nextHasNoMarginBottom
+              label="Select Portal Page"
+              value={portalPage}
+              options={pages}
+              onChange={(value) => setPortalPage(value)}
+            />
+            <DisplayShortCodeTip />
+            <TextControl
+              __nextHasNoMarginBottom
+              __next40pxDefaultSize
+              label="Sheets url"
+              onChange={(value) => setSheetsUrl(value)}
+              value={sheetsUrl}
+            />
+          </div>
         </PanelBody>
       </Panel>
-      <Button variant="primary" onClick={saveSettings} __next40pxDefaultSize>
+      <Button
+        variant="primary"
+        onClick={saveSettings}
+        __next40pxDefaultSize
+        style={{ marginTop: "10px" }}
+      >
         Save
       </Button>
       <Notices />
-    </>
+    </div>
   );
 }
 
