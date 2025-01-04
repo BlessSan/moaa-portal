@@ -36,10 +36,15 @@ define('MOAA_WORKSHOP_PORTAL_SHORTCODE_NAME', 'moaa_workshop_portal');
 function moaa_settings_init()
 {
 
+  $page = get_pages(array('number' => 1));
+  $defaultPageOption = "";
+  if ($page) {
+    $defaultPageOption = $page[0]->post_name;
+  }
 
   //* options will be an array(portalPage=>string, assessmentPage=>string)
   $default = array(
-    MOAA_PORTAL_PAGE_OPTION_KEY => 'portal',
+    MOAA_PORTAL_PAGE_OPTION_KEY => $defaultPageOption,
     MOAA_SHEETS_URL_OPTION_KEY => '',
   );
 
