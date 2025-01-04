@@ -80,7 +80,7 @@ function moaa_options_page()
   add_submenu_page(
     'tools.php',//string $parent_slug,
     'MOAA plugin page title', //string $page_title,
-    'MOAA plugin menu title',//string $menu_title,
+    'MOAA plugin settings',//string $menu_title,
     'manage_options',//string $capability,
     'moaa-plugin',//string $menu_slug,
     'moaa_options_page_html'//callable $function = ''
