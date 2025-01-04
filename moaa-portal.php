@@ -260,8 +260,9 @@ function enqueue_react_scripts()
   //* could be done from here by not queueing the script
   //* or from react
   $portal_page = get_option(MOAA_OPTION_NAME)[MOAA_PORTAL_PAGE_OPTION_KEY];
-  $user = wp_get_current_user();
+
   if (is_page($portal_page) && is_user_logged_in()) {
+    $user = wp_get_current_user();
     if (user_can($user, 'administrator')) {
 
       $asset_file = plugin_dir_path(__FILE__) . 'moaa-react-portal/build/index.asset.php';
