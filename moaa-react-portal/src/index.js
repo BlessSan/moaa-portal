@@ -16,11 +16,15 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <WorkshopListDropdown
-        handleDropdownSelect={(value) => handleDropdownSelect(value)}
-        workshopId={workshopId}
-      />
-      {workshopId ? <MoaaResultTables workshopId={workshopId} /> : null}
+      <div className="moaa_webapp_container">
+        <WorkshopListDropdown
+          handleDropdownSelect={(value) => handleDropdownSelect(value)}
+          workshopId={workshopId}
+        />
+        <div className="moaa_webapp_table_container">
+          {workshopId ? <MoaaResultTables workshopId={workshopId} /> : null}
+        </div>
+      </div>
     </QueryClientProvider>
   );
 }
