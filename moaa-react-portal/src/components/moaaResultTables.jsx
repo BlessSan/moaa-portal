@@ -20,33 +20,48 @@ const MoaaResultTables = ({ workshopId }) => {
 
   if (isSuccess) {
     return data.map((worksheet, index) => {
-      return (
-        <Table
-          key={index}
-          queryResult={queryResult}
-          worksheetData={worksheet.data}
-          worksheetName={worksheet.worksheet}
-          isVirtualize={
-            worksheet.data?.length > 50 ||
-            Object.keys(worksheet.data[0]).length > 12
-          }
-        />
-      );
+      if (worksheet.data.length > 0) {
+        return (
+          <Table
+            key={worksheet.worksheet}
+            queryResult={queryResult}
+            worksheetData={worksheet.data}
+            worksheetName={worksheet.worksheet}
+          />
+        );
+      } else {
+        return (
+          <TableNoDataError key={index} worksheetName={worksheet.worksheet} />
+        );
+      }
     });
   } else if (isError) {
-    return <div>{error}</div>;
+    console.log(error);
+    return (
+      <>
+        <Typography color="error">{error.message}</Typography>
+        {error?.response?.data?.message ? (
+          <Typography variant="caption" color="warning">
+            details: {error?.response?.data?.message}
+          </Typography>
+        ) : null}
+      </>
+    );
   } else {
     return (
       <div>
-        <Typography>Status: {status}</Typography>
+        <Typography color="info">Status: {status}</Typography>
         <LinearProgress />
       </div>
     );
   }
 };
 
-const Table = ({ queryResult, worksheetData, worksheetName, isVirtualize }) => {
+const Table = ({ queryResult, worksheetData, worksheetName }) => {
   const { isPending, isError, error, isLoading, isRefetching } = queryResult;
+
+  const isVirtualize =
+    worksheetData.length > 50 || Object.keys(worksheetData[0]).length > 12;
 
   const columns = useMemo(
     () =>
@@ -86,4 +101,18 @@ const Table = ({ queryResult, worksheetData, worksheetName, isVirtualize }) => {
     </div>
   );
 };
+
+const TableNoDataError = ({ worksheetName }) => {
+  return (
+    <Paper
+      square={false}
+      sx={{
+        p: 2,
+      }}
+    >
+      <Typography color="error">No data from {worksheetName}</Typography>
+    </Paper>
+  );
+};
+
 export default MoaaResultTables;
