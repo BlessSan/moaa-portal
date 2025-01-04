@@ -121,7 +121,7 @@ function moaa_get_sheets_data($request)
   $id_query_param = '?action=' . $action_name . '&workshop_id=' . $url_params['workshop_id'];
   $moaa_sheets_url = $options[MOAA_SHEETS_URL_OPTION_KEY];
 
-  $transient_name = 'moaa_sheets_workshop_data' . $workshop_id;
+  $transient_name = 'moaa_sheets_workshop_data_' . $workshop_id;
   $moaa_sheets_workshop_data = get_transient($transient_name);
   if ($moaa_sheets_url) {
     if ($moaa_sheets_workshop_data === false) {
