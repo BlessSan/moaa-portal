@@ -258,24 +258,23 @@ function enqueue_react_scripts()
   $portal_page = get_option(MOAA_OPTION_NAME)[MOAA_PORTAL_PAGE_OPTION_KEY];
 
   if (is_page($portal_page) && is_user_logged_in()) {
-    $user = wp_get_current_user();
-    if (user_can($user, 'administrator')) {
 
-      $asset_file = plugin_dir_path(__FILE__) . 'moaa-react-portal/build/index.asset.php';
+    $asset_file = plugin_dir_path(__FILE__) . 'moaa-react-portal/build/index.asset.php';
 
-      if (!file_exists($asset_file)) {
-        return;
-      }
-
-      $asset = include $asset_file;
-
-      wp_enqueue_script('moaa_react_portal_script', plugins_url('moaa-react-portal/build/index.js', __FILE__), $asset['dependencies'], $asset['version'], array('in_footer' => true));
-      wp_add_inline_script('moaa_react_portal_script', 'const USER = ' . json_encode(array(
-        'react_root_id' => MOAA_PORTAL_REACT_ROOT_ID,
-        'nonce' => wp_create_nonce('wp_rest')
-      )), 'before');
+    if (!file_exists($asset_file)) {
+      return;
     }
+
+    $asset = include $asset_file;
+
+    wp_enqueue_script('moaa_react_portal_script', plugins_url('moaa-react-portal/build/index.js', __FILE__), $asset['dependencies'], $asset['version'], array('in_footer' => true));
+    wp_add_inline_script('moaa_react_portal_script', 'const USER = ' . json_encode(array(
+      'react_root_id' => MOAA_PORTAL_REACT_ROOT_ID,
+      'rest_base_url' => get_rest_url(null, 'moaa-sheets/v1'),
+      'nonce' => wp_create_nonce('wp_rest')
+    )), 'before');
   }
+
 }
 
 add_action('wp_enqueue_scripts', 'enqueue_react_scripts');

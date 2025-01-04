@@ -1,5 +1,5 @@
 import axios from "axios";
-
+axios.defaults.baseURL = USER.rest_base_url;
 axios.interceptors.response.use(
   function (response) {
     // Any status code that lie within the range of 2xx cause this function to trigger
@@ -22,8 +22,7 @@ axios.interceptors.response.use(
 //* https://tanstack.com/query/latest/docs/framework/react/guides/query-functions
 export const fetchMoaaSheetsData = async (workshopId) => {
   //* body will be {data:[]}
-  const url =
-    "https://moaa-portal-test.local/wp-json/moaa-sheets/v1/getWorkshopResults";
+  const url = "/getWorkshopResults";
   const response = await axios.get(url, {
     // eslint-disable-next-line no-undef
     //TODO: map dropdown value to params
@@ -52,8 +51,7 @@ export const fetchMoaaSheetsData = async (workshopId) => {
 };
 
 export const fetchMoaaWorkshopsList = async () => {
-  const url =
-    "https://moaa-portal-test.local/wp-json/moaa-sheets/v1/getWorkshopsList";
+  const url = "/getWorkshopsList";
 
   const response = await axios.get(url, {
     // eslint-disable-next-line no-undef
