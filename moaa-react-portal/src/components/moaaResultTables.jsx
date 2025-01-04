@@ -1,34 +1,19 @@
-import { QueryCache, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { fetchMoaaSheetsData } from "../modules/fetchSheetsData";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   MaterialReactTable,
   useMaterialReactTable,
 } from "material-react-table";
-import { LinearProgress, Typography } from "@mui/material";
+import { LinearProgress, Paper, Typography } from "@mui/material";
 
 const MoaaResultTables = ({ workshopId }) => {
-  const queryClient = useQueryClient();
-  console.log("result table", workshopId);
   // const [isPending, isError, data, isRefetching] =
   //   useFetchSheetsData(workshopId);
 
   const queryResult = useQuery({
     queryKey: ["tableData", workshopId],
     queryFn: () => fetchMoaaSheetsData(workshopId),
-    initialData: () => {
-      // Use a todo from the 'todos' query as the initial data for this todo query
-      const state = queryClient.getQueryData(["tableData"]);
-      console.log(state);
-      if (state && Date.now() - state.dataUpdatedAt <= 10 * 1000) {
-        // return the individual todo
-        return state.data.find((d) => d.id === workshopId);
-      }
-      // Otherwise, return undefined and let it fetch from a hard loading state!
-    },
-    initialDataUpdatedAt: () =>
-      queryClient.getQueryState(["tableData"])?.dataUpdatedAt,
-    staleTime: 10 * 1000,
   });
 
   const { data, isPending, isSuccess, status, isError, error } = queryResult;
