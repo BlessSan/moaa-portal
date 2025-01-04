@@ -64,5 +64,5 @@ function App() {
 //   </CacheProvider>
 // );
 
-const root = createRoot(document.getElementById("react-portal-root"));
+const root = createRoot(document.getElementById(USER.react_root_id));
 root.render(<App />);

@@ -24,6 +24,8 @@ define("MOAA_ASSESSMENT_PAGE_OPTION_KEY", "assessmentPage");
 define("MOAA_SHEETS_URL_OPTION_KEY", "sheetsUrl");
 define("USER_TYPE_WORKSHOP", "workshop");
 define("USER_TYPE_PARTNER", "partner");
+define('MOAA_PORTAL_REACT_ROOT_ID', "moaa-portal-react-root");
+define('MOAA_WORKSHOP_PORTAL_SHORTCODE_NAME', 'moaa_workshop_portal');
 
 
 
@@ -209,9 +211,18 @@ add_action('rest_api_init', 'moaa_register_sheets_routes');
  */
 function moaa_shortcodes_init()
 {
-
+  add_shortcode(MOAA_WORKSHOP_PORTAL_SHORTCODE_NAME, 'moaa_workshop_portal_react_root');
 }
 
+
+function moaa_workshop_portal_react_root()
+{
+  ob_start();
+  ?>
+  <div id="<?php echo MOAA_PORTAL_REACT_ROOT_ID ?>"></div>
+  <?php
+  return ob_get_clean();
+}
 
 
 add_action('init', 'moaa_shortcodes_init');
@@ -249,27 +260,24 @@ function enqueue_react_scripts()
   //* could be done from here by not queueing the script
   //* or from react
   $portal_page = get_option(MOAA_OPTION_NAME)[MOAA_PORTAL_PAGE_OPTION_KEY];
-
-  if (is_admin()) {
-    return;
-  }
-
+  $user = wp_get_current_user();
   if (is_page($portal_page) && is_user_logged_in()) {
-    $user = wp_get_current_user();
+    if (user_can($user, 'administrator')) {
 
-    $asset_file = plugin_dir_path(__FILE__) . 'moaa-react-portal/build/index.asset.php';
+      $asset_file = plugin_dir_path(__FILE__) . 'moaa-react-portal/build/index.asset.php';
 
-    if (!file_exists($asset_file)) {
-      return;
+      if (!file_exists($asset_file)) {
+        return;
+      }
+
+      $asset = include $asset_file;
+
+      wp_enqueue_script('moaa_react_portal_script', plugins_url('moaa-react-portal/build/index.js', __FILE__), $asset['dependencies'], $asset['version'], array('in_footer' => true));
+      wp_add_inline_script('moaa_react_portal_script', 'const USER = ' . json_encode(array(
+        'react_root_id' => MOAA_PORTAL_REACT_ROOT_ID,
+        'nonce' => wp_create_nonce('wp_rest')
+      )), 'before');
     }
-
-    $asset = include $asset_file;
-
-    wp_enqueue_script('moaa_react_portal_script', plugins_url('moaa-react-portal/build/index.js', __FILE__), $asset['dependencies'], $asset['version'], array('in_footer' => true));
-    wp_add_inline_script('moaa_react_portal_script', 'const USER = ' . json_encode(array(
-      'id' => $user->user_nicename,
-      'nonce' => wp_create_nonce('wp_rest')
-    )), 'before');
   }
 }
 
@@ -296,6 +304,9 @@ function moaa_admin_react_scripts()
   $asset = include $asset_file;
 
   wp_enqueue_script('moaa_admin_react_script', plugins_url('moaa-react-admin/build/index.js', __FILE__), $asset['dependencies'], $asset['version'], array('in_footer' => true));
+  wp_add_inline_script('moaa_admin_react_script', 'const USER = ' . json_encode(array(
+    'shortcode_name' => MOAA_WORKSHOP_PORTAL_SHORTCODE_NAME,
+  )), 'before');
 
   wp_enqueue_style('wp-components');
 }

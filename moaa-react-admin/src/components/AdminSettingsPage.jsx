@@ -6,6 +6,7 @@ import {
   Button,
   NoticeList,
   TextControl,
+  Tip,
 } from "@wordpress/components";
 import { useEffect, useState } from "@wordpress/element";
 import { store as noticesStore } from "@wordpress/notices";
@@ -33,6 +34,10 @@ export default function AdminSettingPage() {
             options={pages}
             onChange={(value) => setPortalPage(value)}
           />
+          <Tip>
+            To display the data, please insert this shortcode inside a container
+            into the selected selected page: <b>[{USER.shortcode_name}]</b>
+          </Tip>
           <TextControl
             __nextHasNoMarginBottom
             __next40pxDefaultSize
@@ -42,7 +47,6 @@ export default function AdminSettingPage() {
           />
         </PanelBody>
       </Panel>
-
       <Button variant="primary" onClick={saveSettings} __next40pxDefaultSize>
         Save
       </Button>
