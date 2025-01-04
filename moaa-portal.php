@@ -232,43 +232,6 @@ add_action('user_new_form', 'moaa_workshop_field');
 
 
 //** ----------------------------------------- OTHER HOOKS/FILTERS ----------------------------------------- */
-/**
- * Redirects user with brand_name registered if there is no query parameter
- * TODO: might be implemented with client portal
- */
-function moaa_portal_redirect()
-{
-  $options = get_option(MOAA_OPTION_NAME);
-  $is_portal = is_page($options[MOAA_PORTAL_PAGE_OPTION_KEY]);
-  if ($is_portal) {
-    if (!is_user_logged_in()) {
-      //** redirect if not logged in
-      auth_redirect();
-    } else {
-      $user = wp_get_current_user();
-      $user_id = $user->ID;
-      $user_links = get_user_meta($user_id, USER_META_KEY_USER_LINK_ARRAY, true);
-      if (is_array($user_links)) {
-
-        //TODO: consider programmatically get page name of portal 
-        $query_param_workshop = get_query_var('workshop', false);
-        $query_param_partner = get_query_var('partner', false);
-        $query_param = $query_param_workshop ? $query_param_workshop : $query_param_partner;
-        //! user identifier is set to nicename when registered. if registration logic change dont for get to change this
-        $user_identifier = $user->user_nicename;
-
-        //* redirect to user's registered brand name
-        if (empty($query_param) || $query_param !== $user_identifier) {
-          $user_portal_link = $user_links[USER_META_KEY_USER_LINK_PORTAL];
-          wp_safe_redirect($user_portal_link);
-          exit;
-        }
-      }
-    }
-  }
-}
-
-add_action('template_redirect', 'moaa_portal_redirect');
 
 function moaa_client_portal_query_vars($qvars)
 {
