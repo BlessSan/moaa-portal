@@ -142,28 +142,35 @@ function moaa_get_endpoint_phrase()
  */
 function moaa_get_sheets_data($request)
 {
-  do_action('qm/debug', 'api called');
-  do_action('qm/debug', $request);
-  $current_user_id = get_current_user_id();
-  do_action('qm/debug', $current_user_id);
   //TODO: handle id
   //TODO: programmatically handle moaa sheets url
   $options = get_option(MOAA_OPTION_NAME);
   $url_params = $request->get_query_params();
-  $id_query_param = '?action=getWorkshopResults&workshop_id=' . $url_params['workshop_id'];
+  $action_name = 'getWorkshopResults';
+  //TODO: may need to handle client portal (or maybe different endpoint entirely)
+  $workshop_id = $url_params['workshop_id'];
+  $id_query_param = '?action=' . $action_name . '&workshop_id=' . $url_params['workshop_id'];
   $moaa_sheets_url = $options[MOAA_SHEETS_URL_OPTION_KEY];
+
+  $transient_name = 'moaa_sheets_workshop_data' . $workshop_id;
+  $moaa_sheets_workshop_data = get_transient($transient_name);
   if ($moaa_sheets_url) {
-    $response = wp_remote_get($moaa_sheets_url . $id_query_param);
+    if ($moaa_sheets_workshop_data === false) {
+      $response = wp_remote_get($moaa_sheets_url . $id_query_param);
 
-    if (is_wp_error($response)) {
-      return rest_ensure_response($response);
+      if (is_wp_error($response)) {
+        return rest_ensure_response($response);
+      }
+
+      $body = wp_remote_retrieve_body(response: $response);
+      set_transient($transient_name, $body, 10);
+      return rest_ensure_response(get_transient($transient_name));
+    } else {
+      return rest_ensure_response($moaa_sheets_workshop_data);
     }
-
-    $body = wp_remote_retrieve_body($response);
-    return rest_ensure_response($body);
   } else {
-    //TODO: handle error when url empty
-    return new WP_Error();
+    $error = new WP_Error('moaa_missing_sheets_url', esc_html__('moaa google sheets url missing or not set by admin'), array('status' => 500));
+    return rest_ensure_response($error);
   }
 }
 
@@ -172,17 +179,26 @@ function moaa_get_workshops_list($request)
   $options = get_option(MOAA_OPTION_NAME);
   $moaa_sheets_url = $options[MOAA_SHEETS_URL_OPTION_KEY];
   if ($moaa_sheets_url) {
-    $response = wp_remote_get($moaa_sheets_url . '?action=getWorkshops');
 
-    if (is_wp_error($response)) {
-      return rest_ensure_response($response);
+    $moaa_sheets_workshop_list = get_transient('moaa_sheets_workshop_list');
+    if ($moaa_sheets_workshop_list === false) {
+
+      $response = wp_remote_get($moaa_sheets_url . '?action=getWorkshops');
+
+      if (is_wp_error($response)) {
+        return rest_ensure_response($response);
+      }
+
+      $body = wp_remote_retrieve_body($response);
+      set_transient('moaa_sheets_workshop_list', $body, 10);
+      return rest_ensure_response(get_transient('moaa_sheets_workshop_list'));
+    } else {
+      return rest_ensure_response($moaa_sheets_workshop_list);
     }
-
-    $body = wp_remote_retrieve_body($response);
-    return rest_ensure_response($body);
   } else {
     //TODO: handle error when url empty
-    return new WP_Error();
+    $error = new WP_Error('moaa_missing_sheets_url', esc_html__('moaa google sheets url missing or not set by admin'), array('status' => 500));
+    return rest_ensure_response($error);
   }
 }
 
@@ -487,6 +503,7 @@ add_action('wp_head', 'moaa_check_page');
 
 /**
  * Redirects user with brand_name registered if there is no query parameter
+ * TODO: might be implemented with client portal
  */
 function moaa_portal_redirect()
 {
@@ -522,6 +539,7 @@ function moaa_portal_redirect()
 
 
 
+
 add_action('template_redirect', 'moaa_portal_redirect');
 
 function moaa_client_portal_query_vars($qvars)
@@ -539,7 +557,6 @@ function enqueue_react_scripts()
   //TODO: when no query variable, consider where the level of control of not displaying the table
   //* could be done from here by not queueing the script
   //* or from react
-  $brand = get_query_var(PORTAL_QUERY_VAR);
   $portal_page = get_option(MOAA_OPTION_NAME)[MOAA_PORTAL_PAGE_OPTION_KEY];
 
   if (is_admin()) {
