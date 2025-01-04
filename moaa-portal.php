@@ -40,7 +40,6 @@ function moaa_settings_init()
   //* options will be an array(portalPage=>string, assessmentPage=>string)
   $default = array(
     MOAA_PORTAL_PAGE_OPTION_KEY => 'portal',
-    MOAA_ASSESSMENT_PAGE_OPTION_KEY => 'assessment',
     MOAA_SHEETS_URL_OPTION_KEY => '',
   );
 
@@ -48,9 +47,6 @@ function moaa_settings_init()
     'type' => 'object',
     'properties' => array(
       MOAA_PORTAL_PAGE_OPTION_KEY => array(
-        'type' => 'string',
-      ),
-      MOAA_ASSESSMENT_PAGE_OPTION_KEY => array(
         'type' => 'string',
       ),
       MOAA_SHEETS_URL_OPTION_KEY => array(
