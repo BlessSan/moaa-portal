@@ -92,10 +92,6 @@ function moaa_options_page_html()
     return;
   }
 
-  //TODO: remove
-  $options = get_option(MOAA_OPTION_NAME);
-  do_action('qm/debug', $options);
-
   ?>
   <div class="wrap">
     <div id="<?php echo ADMIN_MOAA_SETTING_ROOT_DIV ?>"></div>
@@ -105,36 +101,7 @@ function moaa_options_page_html()
 
 add_action('admin_menu', 'moaa_options_page');
 
-
-function moaa_option_change($option, $old_value, $new_value)
-{
-
-
-  if ($option === MOAA_OPTION_NAME) {
-    $user_ids = get_users(args: array('meta_key' => USER_META_KEY_USER_LINK_ARRAY, 'fields' => 'ID'));
-    if (count($user_ids) > 0) {
-      foreach ($user_ids as $user_id) {
-        $user_type = get_user_meta($user_id, USER_META_KEY_USER_TYPE, true);
-        $moaa_option = get_option($option);
-        set_user_link_meta($user_id, $user_type, $moaa_option);
-      }
-    }
-  }
-
-  //set_user_link_meta($user_id, $user_type, $moaa_option);
-}
-
-add_action('updated_option', 'moaa_option_change', 10, 3);
 //** ----------------------------------------- REST API SECTION ----------------------------------------- */
-/**
- * This is our callback function that embeds our phrase in a WP_REST_Response
- */
-function moaa_get_endpoint_phrase()
-{
-  // rest_ensure_response() wraps the data we want to return into a WP_REST_Response, and ensures it will be properly returned.
-  return rest_ensure_response('Hello World, this is the WordPress REST API');
-}
-
 /**
  * get sheets data by id passed from react code
  * @param mixed $request
@@ -204,14 +171,13 @@ function moaa_get_workshops_list($request)
 
 function moaa_permission_callback($request)
 {
-  do_action('qm/debug', 'permission callback called');
   if (is_user_logged_in()) {
     return true;
   }
   return new WP_Error('rest_forbidden', esc_html__('Not authorized', 'my-text-domain'), array('status' => 401));
 }
 
-//TODO: consider adding extra field for for portal page link and assessment page link
+//TODO: might need to re evaluate since workshop is not tied to a user now.
 function get_user_meta_rest_api($user, $field_name)
 {
   return array('user_type' => get_user_meta($user['id'], USER_META_KEY_USER_TYPE, true), 'page_url' => get_user_meta($user['id'], USER_META_KEY_USER_LINK_ARRAY, true));
@@ -220,7 +186,7 @@ function get_user_meta_rest_api($user, $field_name)
 /**
  * This function is where we register our routes for our example endpoint.
  */
-function moaa_register_example_routes()
+function moaa_register_sheets_routes()
 {
   register_rest_route('moaa-sheets/v1', '/getWorkshopResults', args: array(
     'methods' => WP_REST_Server::READABLE,
@@ -235,7 +201,7 @@ function moaa_register_example_routes()
   register_rest_field('user', 'user_info', array('get_callback' => 'get_user_meta_rest_api', 'schema' => null));
 }
 
-add_action('rest_api_init', 'moaa_register_example_routes');
+add_action('rest_api_init', 'moaa_register_sheets_routes');
 
 //** ----------------------------------------- SHORTCODES ----------------------------------------- */
 /**
@@ -243,113 +209,14 @@ add_action('rest_api_init', 'moaa_register_example_routes');
  */
 function moaa_shortcodes_init()
 {
-  add_shortcode('moaa_login_template', 'moaa_login_template_handler');
-  add_shortcode('moaa_custom_typeform', 'display_custom_typeform_link');
-}
-
-function moaa_login_template_handler()
-{
-  ob_start();
-  ?>
-  <form name="loginform" id="loginform" action="<?php echo site_url('wp-login.php') ?>" method="post">
-    <p>
-      <label for="user_login">Username<br />
-        <input type="text" name="log" id="user_login" class="input" value="" size="20"></label>
-    </p>
-    <p>
-      <label for="user_pass">Password<br />
-        <input type="password" name="pwd" id="user_pass" class="input" value="" size="20"></label>
-    </p>
-    <p class="forgetmenot">
-      <label for="rememberme"><input name="rememberme" type="checkbox" id="rememberme" value="forever"> Remember
-        Me</label>
-    </p>
-    <p class="submit">
-      <input type="submit" name="wp-submit" id="wp-submit" class="button button-primary button-large" value="Log In">
-      <input type="hidden" name="redirect_to" value="<?php echo site_url('client-portal') ?>">
-    </p>
-  </form>
-  <?php
-  return ob_get_clean();
 
 }
 
-function display_custom_typeform_link()
-{
-  if (current_user_can('subscriber')) {
-    $user_id = get_current_user_id();
-    $sheets_id = get_user_meta($user_id, 'sheets-id', true);
-    $typeform_url = 'https://tp6k7z890ba.typeform.com/to/kVMmAECp#quiz_id=' . $sheets_id;
-    ob_start();
-    ?>
-    <p>share this typeform link</p>
-    <a href="<?php echo $typeform_url ?>"><?php echo $typeform_url ?></a>
-    <?php
-    return ob_get_clean();
-  }
-}
+
 
 add_action('init', 'moaa_shortcodes_init');
 
 //** ----------------------------------------- REGISTRATION/LOGIN ----------------------------------------- */
-
-function moaa_register_extra_fields()
-{
-  ?>
-  <label for="brand-name">brand-name:<br>
-    <input type="text" name="brand-name" class="brand-name" value="">
-  </label>
-  <?php
-}
-
-add_action('register_form', 'moaa_register_extra_fields');
-
-function moaa_brand_name_validation($errors, $sanitized_user_login, $user_email)
-{
-
-  if (empty($_POST['brand-name'])) {
-    $errors->add('brand_name_error', __('brand name is required.', 'textdomain'));
-  } else {
-    $users = check_if_user_brand_exists($_POST['brand-name']);
-    if ($users) {
-      $errors->add('brand_name_error', __('brand name is already taken', 'textdomain'));
-    }
-  }
-  return $errors;
-}
-
-function check_if_user_brand_exists($meta_value)
-{
-  $users = get_users(array('meta_value' => $meta_value));
-  do_action('qm/debug', $users);
-  return $users;
-}
-
-
-add_filter('registration_errors', 'moaa_brand_name_validation', 10, 3);
-
-
-
-//! MAY NOT BE NEEDED SINCE ADMIN IS THE ONE THAT REGISTERS
-function moaa_user_register($user_id)
-{
-  if (isset($_POST['brand-name'])) {
-    $brandName = sanitize_text_field($_POST['brand-name']);
-    update_user_meta($user_id, BRAND_NAME_META_KEY, $brandName);
-    // generat UID for sheets-api
-    update_user_meta($user_id, 'sheets-id', wp_generate_uuid4());
-  }
-}
-
-//* handles when new user is registered
-/**
- * TODO: handle scenario: 
- * When user register manually through wp-login.php (unlikely route due to risk of spam)
- * when user is registered through admin adding a new user (could be through different hook e.g. edit_user_created_user)
- */
-add_action('user_register', 'moaa_user_register');
-
-
 
 function moaa_workshop_field()
 {
@@ -361,146 +228,10 @@ function moaa_workshop_field()
 //* add custom field when admin add new user
 add_action('user_new_form', 'moaa_workshop_field');
 
-//! EVALUATE! MAYBE NOT NEEDED
-function moaa_edit_user_profile($profile_user)
-{
-
-  //* only admin can check other user and update assigned workshop
-  //* input handled by moaa_user_profile_update()
-  if (current_user_can('administrator')) {
-    //* insert react component when admin edit user
-    ?>
-    <div id="<?php echo ADMIN_USER_PROFILE_ROOT_DIV ?>"></div>
-    <div>Workshop (optional)</div>
-    <div>assigned: <?php echo get_user_meta($profile_user->ID, USER_META_WORKSHOP_KEY, true); ?> </div>
-    <label for="moaa_workshop">
-      <input style="width: auto;" type="text" name="moaa_workshop" id="moaa_workshop" />
-    </label>
-    <?php
-  }
-}
-//* display additional field when admin edits registered user
-add_action('edit_user_profile', 'moaa_edit_user_profile');
-
-
-/**
- * sets user link meta user_link_array with its value being an array of links for assessment page and portal page
- * @param mixed $user_id
- * @param mixed $user_type
- * @param mixed $moaa_option
- * @return void
- */
-function set_user_link_meta($user_id, $user_type, $moaa_option)
-{
-  $user = get_userdata($user_id);
-  do_action('qm/notice', $user);
-  if ($user) {
-    $query_param = '';
-    //TODO: EVALUATE GOOD VALUE TO USE AS QUERY PARAM VALUE
-    $identifier_name = urlencode($user->user_nicename);
-    if ($user_type === USER_TYPE_WORKSHOP) {
-      //** find way to avoid hardcode query param
-      $query_param = 'workshop';
-    } else if ($user_type === USER_TYPE_PARTNER) {
-      $query_param = 'partner';
-    }
-    $portal_page = add_query_arg($query_param, $identifier_name, home_url('/' . $moaa_option[MOAA_PORTAL_PAGE_OPTION_KEY]));
-    $assessment_page = add_query_arg($query_param, $identifier_name, home_url('/' . $moaa_option[MOAA_ASSESSMENT_PAGE_OPTION_KEY]));
-    $meta_value = array(MOAA_ASSESSMENT_PAGE_OPTION_KEY => $assessment_page, MOAA_PORTAL_PAGE_OPTION_KEY => $portal_page);
-
-    update_user_meta($user_id, USER_META_KEY_USER_LINK_ARRAY, $meta_value);
-
-  }
-}
-
-//* user created when admin add
-function moaa_user_created($user_id)
-{
-  if (!is_wp_error($user_id)) {
-    $user_type = $_POST['moaa_user_type'];
-    $moaa_option = get_option(MOAA_OPTION_NAME);
-    if (isset($user_type)) {
-      add_user_meta($user_id, USER_META_KEY_USER_TYPE, sanitize_text_field($user_type));
-      if (isset($moaa_option)) {
-        set_user_link_meta($user_id, $user_type, $moaa_option);
-      }
-    }
-  }
-}
-//* user created when admin add
-add_action('edit_user_created_user', 'moaa_user_created');
-
-
-
-function moaa_user_profile_update($user_id)
-{
-  if (isset($_POST['moaa_workshop'])) {
-    update_user_meta($user_id, USER_META_WORKSHOP_KEY, sanitize_text_field($_POST['moaa_workshop']));
-  }
-}
-//* when admin update user profile
-add_action('edit_user_profile_update', 'moaa_user_profile_update');
-
-/** 
- * ! does not seem to work, after register need to check email for password set.
- * ! after setting password, no redirect
- */
-//* https://developer.wordpress.org/reference/hooks/registration_redirect/
-function moaa_registration_redirect($registration_redirect, $errors)
-{
-  //* $errors is user id if registration successful, otherwise its an error obj
-  if (!is_wp_error($errors)) {
-    $brand_name = get_user_meta($errors, BRAND_NAME_META_KEY, true);
-    return site_url("clent-portal?brand=" . $brand_name);
-  } else {
-    return $registration_redirect;
-  }
-}
-
-add_filter('registration_redirect', 'moaa_registration_redirect', 10, 2);
-
-function moaa_client_login_redirect($redirect_to, $request, $user)
-{
-  if (!is_wp_error($user) && !current_user_can('administrator')) {
-    $user_links = get_user_meta($user->ID, USER_META_KEY_USER_LINK_ARRAY, true)[USER_META_KEY_USER_LINK_PORTAL];
-    if (is_array($user_links) && $user->has_cap(CLIENT_ROLE)) {
-      $portal_link = $user_links[USER_META_KEY_USER_LINK_PORTAL];
-      return $portal_link;
-    }
-  }
-  return $redirect_to;
-}
-
-add_filter('login_redirect', 'moaa_client_login_redirect', 10, 3);
-
 //** ----------------------------------------- USER PROFILE ----------------------------------------- */
 
-function moaa_user_profile($profile_user)
-{
-  ?>
-  <div> workshop: <?php echo get_user_meta($profile_user->ID, USER_META_WORKSHOP_KEY, true); ?></div>
-  <?php
-}
-//* display the list of workshop assigned by admin
-add_action('show_user_profile', 'moaa_user_profile');
 
 //** ----------------------------------------- OTHER HOOKS/FILTERS ----------------------------------------- */
-
-
-function moaa_check_page()
-{
-  $is_client_portal = is_page('client-portal');
-  $brand = get_query_var(PORTAL_QUERY_VAR);
-
-
-  do_action('qm/debug', $is_client_portal);
-  do_action('qm/debug', $brand);
-
-
-}
-
-add_action('wp_head', 'moaa_check_page');
-
 /**
  * Redirects user with brand_name registered if there is no query parameter
  * TODO: might be implemented with client portal
@@ -536,9 +267,6 @@ function moaa_portal_redirect()
     }
   }
 }
-
-
-
 
 add_action('template_redirect', 'moaa_portal_redirect');
 
