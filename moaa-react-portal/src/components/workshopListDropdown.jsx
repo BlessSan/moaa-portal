@@ -17,18 +17,11 @@ const WorkshopListDropdown = ({ workshopId, handleDropdownSelect }) => {
     queryFn: fetchMoaaWorkshopsList,
   });
 
-  console.log("status", status);
-
-  const options = data.map((workshop) => ({
-    value: workshop,
-    label: workshop,
-  }));
-
   return (
     <>
       <Select
         isLoading={isLoading}
-        options={options}
+        options={data}
         onChange={handleDropdownSelect}
         styles={{
           control: (baseStyles, state) => ({
