@@ -180,12 +180,6 @@ function moaa_permission_callback($request)
   return new WP_Error('rest_forbidden', esc_html__('Not authorized', 'my-text-domain'), array('status' => 401));
 }
 
-//TODO: might need to re evaluate since workshop is not tied to a user now.
-function get_user_meta_rest_api($user, $field_name)
-{
-  return array('user_type' => get_user_meta($user['id'], MOAA_USER_META_KEY_USER_TYPE, true), 'page_url' => get_user_meta($user['id'], MOAA_USER_META_KEY_USER_LINK_ARRAY, true));
-}
-
 /**
  * This function is where we register our routes for our example endpoint.
  */
@@ -201,7 +195,6 @@ function moaa_register_sheets_routes()
     'callback' => 'moaa_get_workshops_list',
     'permission_callback' => 'moaa_permission_callback'
   ));
-  register_rest_field('user', 'user_info', array('get_callback' => 'get_user_meta_rest_api', 'schema' => null));
 }
 
 add_action('rest_api_init', 'moaa_register_sheets_routes');
