@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchMoaaSheetsData } from "../modules/fetchSheetsData";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   MaterialReactTable,
   useMaterialReactTable,
@@ -26,6 +26,7 @@ const MoaaResultTables = ({ workshopId }) => {
             key={worksheet.worksheet}
             queryResult={queryResult}
             worksheetData={worksheet.data}
+            worksheetType={worksheet.type}
             worksheetName={worksheet.worksheet}
           />
         );
@@ -57,7 +58,12 @@ const MoaaResultTables = ({ workshopId }) => {
   }
 };
 
-const Table = ({ queryResult, worksheetData, worksheetName }) => {
+const Table = ({
+  queryResult,
+  worksheetData,
+  worksheetType,
+  worksheetName,
+}) => {
   const { isPending, isError, error, isLoading, isRefetching } = queryResult;
 
   const isVirtualize =
@@ -67,17 +73,21 @@ const Table = ({ queryResult, worksheetData, worksheetName }) => {
     () =>
       worksheetData.length
         ? Object.keys(worksheetData[0]).map((columnId) => ({
-            header: columnId,
-            accessorKey: columnId,
+            header: columnId ? columnId : "no column id",
+            accessorKey: columnId ? columnId : "default",
           }))
         : [],
     [worksheetData]
   );
 
+  const [isStatic, setIsStatic] = useState(
+    worksheetType === "dynamic" ? true : false
+  );
+
   const table = useMaterialReactTable({
     columns,
     data: worksheetData,
-    enableGrouping: true,
+    enableGrouping: isStatic,
     initialState: { density: "compact" },
     enablePagination: false,
     muiTableContainerProps: { sx: { maxHeight: "400px", zIndex: 0 } },
@@ -85,6 +95,11 @@ const Table = ({ queryResult, worksheetData, worksheetName }) => {
     enableStickyHeader: true,
     enableStickyFooter: true,
     enableRowVirtualization: isVirtualize,
+    enableToolbarInternalActions: isStatic,
+    enableKeyboardShortcuts: isStatic,
+    enableColumnActions: isStatic,
+    enableColumnFilters: isStatic,
+    enableSorting: isStatic,
     renderTopToolbarCustomActions: () => {
       return <Typography variant="h5">{worksheetName}</Typography>;
     },
