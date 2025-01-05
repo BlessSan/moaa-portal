@@ -1,4 +1,5 @@
 <?php
+defined('ABSPATH') or exit;
 
 /*
  * Plugin Name: moaa-portal
@@ -317,12 +318,20 @@ function moaa_admin_enqueue_styles()
 
 function moaa_activate()
 {
+  if (!current_user_can('activate_plugins'))
+    return;
+  $plugin = isset($_REQUEST['plugin']) ? $_REQUEST['plugin'] : '';
+  check_admin_referer("activate-plugin_{$plugin}");
   // do some init stuff if any
   // Clear the permalinks after the post type has been registered.
   flush_rewrite_rules();
 }
 function moaa_deactivate()
 {
+  if (!current_user_can('activate_plugins'))
+    return;
+  $plugin = isset($_REQUEST['plugin']) ? $_REQUEST['plugin'] : '';
+  check_admin_referer("deactivate-plugin_{$plugin}");
   // Do some unregistering
   wp_dequeue_script('moaa_react_portal_script');
   //wp_dequeue_style('moaa_react_portal_styles');
@@ -347,6 +356,14 @@ register_deactivation_hook(
 
 function moaa_uninstall_plugin()
 {
+  if (!current_user_can('activate_plugins'))
+    return;
+  check_admin_referer('bulk-plugins');
+
+  // Important: Check if the file is the one
+  // that was registered during the uninstall hook.
+  if (__FILE__ != WP_UNINSTALL_PLUGIN)
+    return;
   delete_option(MOAA_OPTION_NAME);
 }
 
