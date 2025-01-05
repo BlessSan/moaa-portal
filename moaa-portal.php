@@ -8,22 +8,22 @@
 //** ---------------------------------------- CONSTANTS ---------------------------------------- */
 
 define("MOAA_OPTION_NAME", "moaa_options");
-define("BRAND_NAME_META_KEY", "brand_name");
-define("USER_META_WORKSHOP_KEY", "workshop");
-define("USER_META_KEY_USER_TYPE", "user_type");
-define("USER_META_KEY_USER_LINK_ARRAY", "user_link_array");
-define("USER_META_KEY_USER_LINK_PORTAL", "portalPage");
-define("USER_META_KEY_USER_LINK_ASSESSMENT", "assessmentPage");
-define("PORTAL_QUERY_VAR", "brand");
-define("CLIENT_ROLE", "subscriber");
-define("ADMIN_USER_PROFILE_ROOT_DIV", "admin-user-profile-root");
-define("ADMIN_ADD_USER_ROOT_DIV", "admin-add-user-root");
-define("ADMIN_MOAA_SETTING_ROOT_DIV", "moaa_setting_page_root");
+define("MOAA_BRAND_NAME_META_KEY", "brand_name");
+define("MOAA_USER_META_WORKSHOP_KEY", "workshop");
+define("MOAA_USER_META_KEY_USER_TYPE", "user_type");
+define("MOAA_USER_META_KEY_USER_LINK_ARRAY", "user_link_array");
+define("MOAA_USER_META_KEY_USER_LINK_PORTAL", "portalPage");
+define("MOAA_USER_META_KEY_USER_LINK_ASSESSMENT", "assessmentPage");
+define("MOAA_PORTAL_QUERY_VAR", "brand");
+define("MOAA_CLIENT_ROLE", "subscriber");
+define("MOAA_ADMIN_USER_PROFILE_ROOT_DIV", "admin-user-profile-root");
+define("MOAA_ADMIN_ADD_USER_ROOT_DIV", "admin-add-user-root");
+define("MOAA_ADMIN_SETTING_ROOT_DIV", "moaa_setting_page_root");
 define("MOAA_PORTAL_PAGE_OPTION_KEY", "portalPage");
 define("MOAA_ASSESSMENT_PAGE_OPTION_KEY", "assessmentPage");
 define("MOAA_SHEETS_URL_OPTION_KEY", "sheetsUrl");
-define("USER_TYPE_WORKSHOP", "workshop");
-define("USER_TYPE_PARTNER", "partner");
+define("MOAA_USER_TYPE_WORKSHOP", "workshop");
+define("MOAA_USER_TYPE_PARTNER", "partner");
 define('MOAA_PORTAL_REACT_ROOT_ID', "moaa-portal-react-root");
 define('MOAA_WORKSHOP_PORTAL_SHORTCODE_NAME', 'moaa_workshop_portal');
 
@@ -97,7 +97,7 @@ function moaa_options_page_html()
 
   ?>
   <div class="wrap">
-    <div id="<?php echo ADMIN_MOAA_SETTING_ROOT_DIV ?>"></div>
+    <div id="<?php echo MOAA_ADMIN_SETTING_ROOT_DIV ?>"></div>
   </div>
   <?php
 }
@@ -183,7 +183,7 @@ function moaa_permission_callback($request)
 //TODO: might need to re evaluate since workshop is not tied to a user now.
 function get_user_meta_rest_api($user, $field_name)
 {
-  return array('user_type' => get_user_meta($user['id'], USER_META_KEY_USER_TYPE, true), 'page_url' => get_user_meta($user['id'], USER_META_KEY_USER_LINK_ARRAY, true));
+  return array('user_type' => get_user_meta($user['id'], MOAA_USER_META_KEY_USER_TYPE, true), 'page_url' => get_user_meta($user['id'], MOAA_USER_META_KEY_USER_LINK_ARRAY, true));
 }
 
 /**
@@ -234,7 +234,7 @@ function moaa_workshop_field()
 {
   //* insert react component for adding new user page
   ?>
-  <div id="<?php echo ADMIN_ADD_USER_ROOT_DIV ?>"></div>
+  <div id="<?php echo MOAA_ADMIN_ADD_USER_ROOT_DIV ?>"></div>
   <?php
 }
 //* add custom field when admin add new user
