@@ -112,13 +112,15 @@ const useSettings = () => {
       setPortalPage(settings.moaa_options.portalPage);
       setSheetsUrl(settings.moaa_options.sheetsUrl);
     });
-    apiFetch({ path: "/wp/v2/pages?_fields=slug" }).then((pages) => {
-      console.log(pages);
-      pages.forEach((page) => {
-        const slug = page.slug;
-        setPages((prev) => [{ label: slug, value: slug }, ...prev]);
-      });
-    });
+    apiFetch({ path: "/wp/v2/pages?_fields=slug&per_page=100" }).then(
+      (pages) => {
+        console.log(pages);
+        pages.forEach((page) => {
+          const slug = page.slug;
+          setPages((prev) => [{ label: slug, value: slug }, ...prev]);
+        });
+      }
+    );
   }, []);
 
   return [
