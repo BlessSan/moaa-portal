@@ -72,7 +72,7 @@ const Table = ({
   const columns = useMemo(
     () =>
       worksheetData.length
-        ? Object.keys(worksheetData[0]).map((columnId) => ({
+        ? Object.keys(worksheetData[0]).map((columnId, index) => ({
             header: columnId ? columnId : "no column id",
             accessorKey: columnId ? columnId : "default",
           }))
@@ -102,6 +102,19 @@ const Table = ({
     enableSorting: isStatic,
     renderTopToolbarCustomActions: () => {
       return <Typography variant="h5">{worksheetName}</Typography>;
+    },
+    muiTableBodyProps: {
+      sx: {
+        //stripe the rows, make odd rows a darker color
+        "& tr:nth-of-type(odd) > td": {
+          backgroundColor: "#E8E8E8",
+        },
+      },
+    },
+    muiTableBodyCellProps: {
+      sx: {
+        borderRight: "2px solid #e0e0e0", //add a border between columns
+      },
     },
     state: {
       isLoading: isPending,
