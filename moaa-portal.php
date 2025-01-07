@@ -124,8 +124,8 @@ function moaa_get_sheets_data($request)
   $moaa_sheets_url = $options[MOAA_SHEETS_URL_OPTION_KEY];
 
   $transient_name = 'moaa_sheets_workshop_data_' . $workshop_id;
-  $moaa_sheets_workshop_data = get_transient($transient_name);
   if ($moaa_sheets_url) {
+    $moaa_sheets_workshop_data = get_transient($transient_name);
     if ($moaa_sheets_workshop_data === false) {
       $response = wp_remote_get($moaa_sheets_url . $id_query_param);
 
@@ -167,7 +167,6 @@ function moaa_get_workshops_list($request)
       return rest_ensure_response($moaa_sheets_workshop_list);
     }
   } else {
-    //TODO: handle error when url empty
     $error = new WP_Error('moaa_missing_sheets_url', esc_html__('moaa google sheets url missing or not set by admin'), array('status' => 500));
     return rest_ensure_response($error);
   }
