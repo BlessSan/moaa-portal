@@ -25,6 +25,7 @@ const MoaaResultTables = ({ workshopId }) => {
           <Table
             key={worksheet.worksheet}
             queryResult={queryResult}
+            isWorkshopTable={worksheet.isWorkshopTable}
             worksheetData={worksheet.data}
             worksheetStats={worksheet.columnsSummaryData}
             worksheetType={worksheet.type}
@@ -137,7 +138,7 @@ const Table = ({
       density: "compact",
     },
     enablePagination: false,
-    muiTableContainerProps: { sx: { maxHeight: "400px", zIndex: 0 } },
+    muiTableContainerProps: { sx: { maxHeight: "500px", zIndex: 0 } },
     muiTopToolbarProps: { sx: { zIndex: 0 } },
     enableStickyHeader: true,
     enableStickyFooter: true,
@@ -152,6 +153,11 @@ const Table = ({
     columnResizeMode: "onEnd",
     renderTopToolbarCustomActions: () => {
       return <Typography variant="h5">{worksheetName}</Typography>;
+    muiTableHeadCellProps: {
+      sx: {
+        fontSize: "0.8rem",
+        lineHeight: "1.0",
+      },
     },
     muiTableBodyProps: {
       sx: {
@@ -163,7 +169,14 @@ const Table = ({
     },
     muiTableBodyCellProps: {
       sx: {
-        borderRight: "2px solid #e0e0e0", //add a border between columns
+        alignContent: "center",
+        justifyContent: "center",
+      },
+    },
+    muiTableFooterCellProps: {
+      sx: {
+        alignContent: "center",
+        justifyContent: "center",
       },
     },
     state: {
