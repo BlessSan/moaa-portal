@@ -99,10 +99,23 @@ const Table = ({
     worksheetType === "dynamic" ? true : false
   );
 
+  const [rowPinning, setRowPinning] = useState({});
+
+  useEffect(() => {
+    if (isWorkshopTable) {
+      setRowPinning({ top: ["0"], bottom: [] });
+    }
+  }, [isWorkshopTable]);
+
   const table = useMaterialReactTable({
     columns,
     data: worksheetData,
-    enableGrouping: isStatic,
+    enableRowPinning: isWorkshopTable
+      ? (row) => {
+          row.id === "0";
+        }
+      : undefined,
+    rowPinningDisplayMode: isWorkshopTable ? "select-top" : undefined,
     initialState: { density: "compact" },
     enablePagination: false,
     muiTableContainerProps: { sx: { maxHeight: "400px", zIndex: 0 } },
@@ -135,6 +148,7 @@ const Table = ({
       isLoading: isPending,
       showProgressBars: isRefetching,
       showAlertBanner: isError,
+      rowPinning,
     },
   });
 
