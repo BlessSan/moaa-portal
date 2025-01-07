@@ -78,6 +78,23 @@ const Table = ({
         ? Object.keys(worksheetData[0]).map((columnId, index) => ({
             header: columnId ? columnId : "no column id",
             accessorKey: columnId ? columnId : "default",
+            grow: true,
+            //size: isWorkshopTable ? (columnId?.length > 10 ? 300 : 130) : 150,
+            size: 150,
+            Cell: isWorkshopTable
+              ? ({ cell }) => {
+                  return (
+                    <span
+                      style={{
+                        color:
+                          cell.getValue() === "Aggregate" ? "green" : undefined,
+                      }}
+                    >
+                      {cell.getValue()}
+                    </span>
+                  );
+                }
+              : null,
             Footer: isWorkshopTable
               ? () => {
                   if (worksheetStats[columnId] !== undefined) {
