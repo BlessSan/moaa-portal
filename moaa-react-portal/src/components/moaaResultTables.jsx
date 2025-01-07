@@ -133,18 +133,23 @@ const Table = ({
         }
       : undefined,
     rowPinningDisplayMode: isWorkshopTable ? "select-top" : undefined,
-    initialState: { density: "compact" },
+    initialState: {
+      density: "compact",
+    },
     enablePagination: false,
     muiTableContainerProps: { sx: { maxHeight: "400px", zIndex: 0 } },
     muiTopToolbarProps: { sx: { zIndex: 0 } },
     enableStickyHeader: true,
     enableStickyFooter: true,
+    enableGrouping: false,
     enableRowVirtualization: isVirtualize,
     enableToolbarInternalActions: isStatic,
     enableKeyboardShortcuts: isStatic,
-    enableColumnActions: isStatic,
-    enableColumnFilters: isStatic,
-    enableSorting: isStatic,
+    enableColumnActions: false,
+    enableColumnFilters: false,
+    enableSorting: false,
+    enableColumnResizing: true,
+    columnResizeMode: "onEnd",
     renderTopToolbarCustomActions: () => {
       return <Typography variant="h5">{worksheetName}</Typography>;
     },
