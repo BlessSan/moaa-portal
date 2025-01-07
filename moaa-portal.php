@@ -127,7 +127,7 @@ function moaa_get_sheets_data($request)
   if ($moaa_sheets_url) {
     $moaa_sheets_workshop_data = get_transient($transient_name);
     if ($moaa_sheets_workshop_data === false) {
-      $response = wp_remote_get($moaa_sheets_url . $id_query_param);
+      $response = wp_remote_get($moaa_sheets_url . $id_query_param, array('timeout' => 10.0));
 
       if (is_wp_error($response)) {
         return rest_ensure_response($response);
@@ -154,7 +154,7 @@ function moaa_get_workshops_list($request)
     $moaa_sheets_workshop_list = get_transient('moaa_sheets_workshop_list');
     if ($moaa_sheets_workshop_list === false) {
 
-      $response = wp_remote_get($moaa_sheets_url . '?action=getWorkshops', array('timeout' => 10));
+      $response = wp_remote_get($moaa_sheets_url . '?action=getWorkshops');
 
       if (is_wp_error($response)) {
         return rest_ensure_response($response);
