@@ -1,11 +1,21 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchMoaaSheetsData } from "../modules/fetchSheetsData";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   MaterialReactTable,
   useMaterialReactTable,
 } from "material-react-table";
-import { LinearProgress, Paper, Typography } from "@mui/material";
+import {
+  Box,
+  IconButton,
+  LinearProgress,
+  Paper,
+  Stack,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+
+import RefreshIcon from "@mui/icons-material/Refresh";
 
 const MoaaResultTables = ({ workshopId }) => {
   // const [isPending, isError, data, isRefetching] =
@@ -68,7 +78,8 @@ const Table = ({
   worksheetType,
   worksheetName,
 }) => {
-  const { isPending, isError, error, isLoading, isRefetching } = queryResult;
+  const { isPending, isError, error, isLoading, isRefetching, refetch } =
+    queryResult;
 
   const isVirtualize =
     worksheetData.length > 50 || Object.keys(worksheetData[0]).length > 12;
@@ -151,8 +162,25 @@ const Table = ({
     enableSorting: false,
     enableColumnResizing: true,
     columnResizeMode: "onEnd",
-    renderTopToolbarCustomActions: () => {
-      return <Typography variant="h5">{worksheetName}</Typography>;
+    renderTopToolbarCustomActions: () => (
+      <Tooltip arrow title="Refresh Data">
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+          }}
+        >
+          <IconButton onClick={() => refetch()}>
+            <RefreshIcon />
+          </IconButton>
+
+          <Typography align="center" variant="subtitle1">
+            {worksheetName}
+          </Typography>
+        </div>
+      </Tooltip>
+    ),
     muiTableHeadCellProps: {
       sx: {
         fontSize: "0.8rem",
