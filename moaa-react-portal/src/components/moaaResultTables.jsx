@@ -26,6 +26,7 @@ const MoaaResultTables = ({ workshopId }) => {
             key={worksheet.worksheet}
             queryResult={queryResult}
             worksheetData={worksheet.data}
+            worksheetStats={worksheet.columnsSummaryData}
             worksheetType={worksheet.type}
             worksheetName={worksheet.worksheet}
           />
@@ -60,7 +61,9 @@ const MoaaResultTables = ({ workshopId }) => {
 
 const Table = ({
   queryResult,
+  isWorkshopTable,
   worksheetData,
+  worksheetStats,
   worksheetType,
   worksheetName,
 }) => {
@@ -75,9 +78,21 @@ const Table = ({
         ? Object.keys(worksheetData[0]).map((columnId, index) => ({
             header: columnId ? columnId : "no column id",
             accessorKey: columnId ? columnId : "default",
+            Footer: isWorkshopTable
+              ? () => {
+                  if (worksheetStats[columnId] !== undefined) {
+                    return (
+                      <Stack color="warning.main">
+                        <Box>{worksheetStats[columnId]}</Box>
+                      </Stack>
+                    );
+                  }
+                  return null;
+                }
+              : null,
           }))
         : [],
-    [worksheetData]
+    [worksheetData, worksheetStats, isWorkshopTable]
   );
 
   const [isStatic, setIsStatic] = useState(
