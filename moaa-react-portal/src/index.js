@@ -7,7 +7,7 @@ import WorkshopListDropdown from "./components/workshopListDropdown";
 const queryClient = new QueryClient();
 
 function App() {
-  const [workshopId, setWorkshopId] = useState("");
+  const [workshopId, setWorkshopId] = useState(null);
 
   const handleDropdownSelect = (value) => {
     console.log("onchange", value);
@@ -22,7 +22,9 @@ function App() {
           workshopId={workshopId}
         />
         <div className="moaa_webapp_table_container">
-          {workshopId ? <MoaaResultTables workshopId={workshopId} /> : null}
+          {workshopId || workshopId?.length === 0 ? (
+            <MoaaResultTables workshopId={workshopId} />
+          ) : null}
         </div>
       </div>
     </QueryClientProvider>

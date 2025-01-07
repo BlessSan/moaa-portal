@@ -4,6 +4,13 @@ import { fetchMoaaWorkshopsList } from "../modules/fetchSheetsData";
 import { Typography } from "@mui/material";
 
 const WorkshopListDropdown = ({ workshopId, handleDropdownSelect }) => {
+  const initialOption = [
+    {
+      value: "",
+      label: "Get all aggregate data",
+    },
+  ];
+
   const {
     isPending,
     isError,
@@ -21,7 +28,7 @@ const WorkshopListDropdown = ({ workshopId, handleDropdownSelect }) => {
     <>
       <Select
         isLoading={isLoading}
-        options={data}
+        options={[...initialOption, ...data]}
         onChange={handleDropdownSelect}
         styles={{
           control: (baseStyles, state) => ({
