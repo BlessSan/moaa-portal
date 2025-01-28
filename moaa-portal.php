@@ -161,7 +161,7 @@ function moaa_get_workshops_list($request)
       }
 
       $body = wp_remote_retrieve_body($response);
-      set_transient('moaa_sheets_workshop_list', $body, 20);
+      set_transient('moaa_sheets_workshop_list', $body, 5);
       return rest_ensure_response(get_transient('moaa_sheets_workshop_list'));
     } else {
       return rest_ensure_response($moaa_sheets_workshop_list);
@@ -187,13 +187,11 @@ function moaa_register_sheets_routes()
 {
   register_rest_route('moaa-sheets/v1', '/getWorkshopResults', array(
     'methods' => WP_REST_Server::READABLE,
-    'callback' => 'moaa_get_sheets_data',
-    'permission_callback' => 'moaa_permission_callback'
+    'callback' => 'moaa_get_sheets_data'
   ));
   register_rest_route('moaa-sheets/v1', '/getWorkshopsList', array(
     'methods' => WP_REST_Server::READABLE,
-    'callback' => 'moaa_get_workshops_list',
-    'permission_callback' => 'moaa_permission_callback'
+    'callback' => 'moaa_get_workshops_list'
   ));
 }
 
@@ -255,7 +253,7 @@ function enqueue_react_scripts()
   //* or from react
   $portal_page = get_option(MOAA_OPTION_NAME)[MOAA_PORTAL_PAGE_OPTION_KEY];
 
-  if (is_page($portal_page) && is_user_logged_in()) {
+  if (is_page($portal_page)) {
 
     $asset_file = plugin_dir_path(__FILE__) . 'moaa-react-portal/build/index.asset.php';
 
