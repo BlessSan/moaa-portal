@@ -20,7 +20,8 @@ define("MOAA_CLIENT_ROLE", "subscriber");
 define("MOAA_ADMIN_USER_PROFILE_ROOT_DIV", "admin-user-profile-root");
 define("MOAA_ADMIN_ADD_USER_ROOT_DIV", "admin-add-user-root");
 define("MOAA_ADMIN_SETTING_ROOT_DIV", "moaa_setting_page_root");
-define("MOAA_PORTAL_PAGE_OPTION_KEY", "portalPage");
+define("MOAA_WORKSHOP_PORTAL_PAGE_OPTION_KEY", "portalPage");
+define("MOAA_CLIENT_PORTAL_PAGE_OPTION_KEY", "clientPage");
 define("MOAA_ASSESSMENT_PAGE_OPTION_KEY", "assessmentPage");
 define("MOAA_SHEETS_URL_OPTION_KEY", "sheetsUrl");
 define("MOAA_USER_TYPE_WORKSHOP", "workshop");
@@ -45,15 +46,19 @@ function moaa_settings_init()
 
   //* options will be an array(portalPage=>string, assessmentPage=>string)
   $default = array(
-    MOAA_PORTAL_PAGE_OPTION_KEY => $defaultPageOption,
+    MOAA_WORKSHOP_PORTAL_PAGE_OPTION_KEY => $defaultPageOption,
+    MOAA_CLIENT_PORTAL_PAGE_OPTION_KEY => $defaultPageOption,
     MOAA_SHEETS_URL_OPTION_KEY => '',
   );
 
   $schema = array(
     'type' => 'object',
     'properties' => array(
-      MOAA_PORTAL_PAGE_OPTION_KEY => array(
+      MOAA_WORKSHOP_PORTAL_PAGE_OPTION_KEY => array(
         'type' => 'string',
+      ),
+      MOAA_CLIENT_PORTAL_PAGE_OPTION_KEY => array(
+        'type' => 'string'
       ),
       MOAA_SHEETS_URL_OPTION_KEY => array(
         'type' => 'string'
@@ -251,7 +256,7 @@ function enqueue_react_scripts()
   //TODO: when no query variable, consider where the level of control of not displaying the table
   //* could be done from here by not queueing the script
   //* or from react
-  $portal_page = get_option(MOAA_OPTION_NAME)[MOAA_PORTAL_PAGE_OPTION_KEY];
+  $portal_page = get_option(MOAA_OPTION_NAME)[MOAA_WORKSHOP_PORTAL_PAGE_OPTION_KEY];
 
   if (is_page($portal_page)) {
 

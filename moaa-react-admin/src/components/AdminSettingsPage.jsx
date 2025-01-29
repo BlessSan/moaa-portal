@@ -21,7 +21,7 @@ const DisplayShortCodeTip = () => {
   return (
     <Tip>
       To display the data, please insert this shortcode inside a container into
-      the selected selected page: <b>[{shortcodeName}]</b>{" "}
+      the selected page: <b>[{shortcodeName}]</b>{" "}
       <CopyToClipboard
         text={`[${shortcodeName}]`}
         onCopy={() => setIsCopied(true)}
@@ -39,6 +39,8 @@ export default function AdminSettingPage() {
     pages,
     portalPage,
     setPortalPage,
+    clientPage,
+    setClientPage,
     sheetsUrl,
     setSheetsUrl,
     saveSettings,
@@ -58,10 +60,18 @@ export default function AdminSettingPage() {
             <SelectControl
               __next40pxDefaultSize
               __nextHasNoMarginBottom
-              label="Select Portal Page"
+              label="Select Workshop Portal Page"
               value={portalPage}
               options={pages}
               onChange={(value) => setPortalPage(value)}
+            />
+            <SelectControl
+              __next40pxDefaultSize
+              __nextHasNoMarginBottom
+              label="Select Client Portal Page"
+              value={clientPage}
+              options={pages}
+              onChange={(value) => setClientPage(value)}
             />
             <DisplayShortCodeTip />
             <TextControl
@@ -90,6 +100,7 @@ export default function AdminSettingPage() {
 const useSettings = () => {
   const { createSuccessNotice } = useDispatch(noticesStore);
   const [portalPage, setPortalPage] = useState();
+  const [clientPage, setClientPage] = useState();
   const [sheetsUrl, setSheetsUrl] = useState("");
   const [pagesOptions, setPages] = useState([]);
 
@@ -98,7 +109,7 @@ const useSettings = () => {
       path: "/wp/v2/settings",
       method: "POST",
       data: {
-        moaa_options: { portalPage, sheetsUrl },
+        moaa_options: { portalPage, clientPage, sheetsUrl },
       },
     }).then(() => {
       createSuccessNotice("Settings Saved");
@@ -110,6 +121,7 @@ const useSettings = () => {
     apiFetch({ path: "/wp/v2/settings" }).then((settings) => {
       console.log(settings);
       setPortalPage(settings.moaa_options.portalPage);
+      setClientPage(settings.moaa_options.clientPage);
       setSheetsUrl(settings.moaa_options.sheetsUrl);
     });
     apiFetch({ path: "/wp/v2/pages?_fields=slug&per_page=100" }).then(
@@ -127,6 +139,8 @@ const useSettings = () => {
     pagesOptions,
     portalPage,
     setPortalPage,
+    clientPage,
+    setClientPage,
     sheetsUrl,
     setSheetsUrl,
     saveSettings,
