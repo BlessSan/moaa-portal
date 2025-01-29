@@ -35,6 +35,10 @@ const WorkshopListDropdown = ({ workshopId, handleDropdownSelect }) => {
             ...baseStyles,
             borderColor: isError ? "red" : baseStyles.borderColor,
           }),
+          menu: (baseStyles, state) => ({
+            ...baseStyles,
+            zIndex: 10,
+          }),
         }}
       />
       {isError ? (
