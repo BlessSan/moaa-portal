@@ -2,11 +2,10 @@ import { RadioControl } from "@wordpress/components";
 import { useState } from "@wordpress/element";
 
 export default function AdminAddUser() {
-  const [option, setOption] = useState("default");
+  const [option, setOption] = useState("partner");
 
   const radioOptions = [
     { description: "Default user account", label: "Default", value: "default" },
-    { description: "Workshop account", label: "Workshop", value: "workshop" },
     { description: "Partner account", label: "Partner", value: "partner" },
   ];
 
