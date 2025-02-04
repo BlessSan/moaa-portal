@@ -28,6 +28,7 @@ define("MOAA_USER_TYPE_WORKSHOP", "workshop");
 define("MOAA_USER_TYPE_PARTNER", "partner");
 define('MOAA_PORTAL_REACT_ROOT_ID', "moaa-portal-react-root");
 define('MOAA_WORKSHOP_PORTAL_SHORTCODE_NAME', 'moaa_workshop_portal');
+define('MOAA_PARTNER_PORTAL_SHORTCODE_NAME', 'moaa_partner_portal');
 
 
 
@@ -303,6 +304,7 @@ function moaa_admin_react_scripts()
   wp_enqueue_script('moaa_admin_react_script', plugins_url('moaa-react-admin/build/index.js', __FILE__), $asset['dependencies'], $asset['version'], array('in_footer' => true));
   wp_add_inline_script('moaa_admin_react_script', 'const USER = ' . json_encode(array(
     'shortcode_name' => MOAA_WORKSHOP_PORTAL_SHORTCODE_NAME,
+    'partner_shortcode_name' => MOAA_PARTNER_PORTAL_SHORTCODE_NAME,
   )), 'before');
 
   wp_enqueue_style('wp-components');
