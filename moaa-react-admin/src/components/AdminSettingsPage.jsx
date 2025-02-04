@@ -13,10 +13,8 @@ import { store as noticesStore } from "@wordpress/notices";
 import { useDispatch, useSelect } from "@wordpress/data";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 
-const DisplayShortCodeTip = () => {
+const DisplayShortCodeTip = ({ shortcodeName }) => {
   const [isCopied, setIsCopied] = useState(false);
-
-  const shortcodeName = USER.shortcode_name;
 
   return (
     <Tip>
@@ -46,6 +44,10 @@ export default function AdminSettingPage() {
     saveSettings,
   ] = useSettings();
 
+  const shortcodeName = USER.shortcode_name;
+
+  const partnerShortcodeName = USER.partner_shortcode_name;
+
   return (
     <div style={{ boxSizing: "border-box" }}>
       <Panel header="MOAA Portal Settings Page">
@@ -65,6 +67,7 @@ export default function AdminSettingPage() {
               options={pages}
               onChange={(value) => setPortalPage(value)}
             />
+            <DisplayShortCodeTip shortcodeName={shortcodeName} />
             <SelectControl
               __next40pxDefaultSize
               __nextHasNoMarginBottom
@@ -73,7 +76,7 @@ export default function AdminSettingPage() {
               options={pages}
               onChange={(value) => setClientPage(value)}
             />
-            <DisplayShortCodeTip />
+            <DisplayShortCodeTip shortcodeName={partnerShortcodeName} />
             <TextControl
               __nextHasNoMarginBottom
               __next40pxDefaultSize
