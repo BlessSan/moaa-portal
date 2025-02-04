@@ -17,13 +17,13 @@ import {
 
 import RefreshIcon from "@mui/icons-material/Refresh";
 
-const MoaaResultTables = ({ workshopId }) => {
+const MoaaResultTables = ({ workshopId, isPartner = false }) => {
   // const [isPending, isError, data, isRefetching] =
   //   useFetchSheetsData(workshopId);
 
   const queryResult = useQuery({
-    queryKey: ["tableData", workshopId],
-    queryFn: () => fetchMoaaSheetsData(workshopId),
+    queryKey: ["tableData", workshopId, isPartner],
+    queryFn: () => fetchMoaaSheetsData(workshopId, isPartner),
   });
 
   const { data, isPending, isSuccess, status, isError, error } = queryResult;

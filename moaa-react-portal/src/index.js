@@ -31,6 +31,21 @@ function App() {
   );
 }
 
+function PartnerPortal() {
+  const search = window.location.search;
+
+  // Parse the query parameters
+  const queryParams = new URLSearchParams(search);
+
+  const id = queryParams.get("id");
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <MoaaResultTables workshopId={id} isPartner />
+    </QueryClientProvider>
+  );
+}
+
 // const container = document.querySelector("#react-portal-root");
 // const shadowContainer = container.attachShadow({ mode: "open" });
 // const shadowRootElement = document.createElement("div");
@@ -70,5 +85,16 @@ function App() {
 //   </CacheProvider>
 // );
 
-const root = createRoot(document.getElementById(USER.react_root_id));
-root.render(<App />);
+const workshopPortalRootDiv = document.getElementById(USER.react_root_id);
+
+const PartnerPortalRootDiv = document.getElementById(
+  USER.react_partner_root_id
+);
+
+if (workshopPortalRootDiv) {
+  const root = createRoot(workshopPortalRootDiv);
+  root.render(<App />);
+} else {
+  const partnerPortalRoot = createRoot(PartnerPortalRootDiv);
+  partnerPortalRoot.render(<PartnerPortal />);
+}

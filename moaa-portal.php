@@ -27,6 +27,7 @@ define("MOAA_SHEETS_URL_OPTION_KEY", "sheetsUrl");
 define("MOAA_USER_TYPE_WORKSHOP", "workshop");
 define("MOAA_USER_TYPE_PARTNER", "partner");
 define('MOAA_PORTAL_REACT_ROOT_ID', "moaa-portal-react-root");
+define('MOAA_PARTNER_PORTAL_REACT_ROOT_ID', "moaa-partner-portal-react-root");
 define('MOAA_WORKSHOP_PORTAL_SHORTCODE_NAME', 'moaa_workshop_portal');
 define('MOAA_PARTNER_PORTAL_SHORTCODE_NAME', 'moaa_partner_portal');
 
@@ -210,6 +211,7 @@ add_action('rest_api_init', 'moaa_register_sheets_routes');
 function moaa_shortcodes_init()
 {
   add_shortcode(MOAA_WORKSHOP_PORTAL_SHORTCODE_NAME, 'moaa_workshop_portal_react_root');
+  add_shortcode(MOAA_PARTNER_PORTAL_SHORTCODE_NAME, 'moaa_partner_portal_react_root');
 }
 
 
@@ -220,6 +222,29 @@ function moaa_workshop_portal_react_root()
   <div id="<?php echo MOAA_PORTAL_REACT_ROOT_ID ?>"></div>
   <?php
   return ob_get_clean();
+}
+
+function moaa_partner_portal_react_root()
+{
+  if (is_user_logged_in()) {
+    $user = wp_get_current_user();
+    $id = $user->ID;
+    $user_type = get_user_meta($id, MOAA_USER_META_KEY_USER_TYPE, true);
+    if ($user_type === MOAA_USER_TYPE_PARTNER) {
+      ob_start();
+      ?>
+      <div id="<?php echo MOAA_PARTNER_PORTAL_REACT_ROOT_ID ?>"></div>
+      <?php
+      return ob_get_clean();
+    } else {
+      ob_start();
+      ?>
+      <p> Forbidden, user type is not Partner </p>
+      <?php
+      return ob_get_clean();
+    }
+
+  }
 }
 
 
@@ -258,8 +283,10 @@ function enqueue_react_scripts()
   //* could be done from here by not queueing the script
   //* or from react
   $portal_page = get_option(MOAA_OPTION_NAME)[MOAA_WORKSHOP_PORTAL_PAGE_OPTION_KEY];
+  $partner_page = get_option(MOAA_OPTION_NAME)[MOAA_CLIENT_PORTAL_PAGE_OPTION_KEY];
 
-  if (is_page($portal_page)) {
+
+  if (is_page($portal_page) || is_page($partner_page)) {
 
     $asset_file = plugin_dir_path(__FILE__) . 'moaa-react-portal/build/index.asset.php';
 
@@ -272,6 +299,8 @@ function enqueue_react_scripts()
     wp_enqueue_script('moaa_react_portal_script', plugins_url('moaa-react-portal/build/index.js', __FILE__), $asset['dependencies'], $asset['version'], array('in_footer' => true));
     wp_add_inline_script('moaa_react_portal_script', 'const USER = ' . json_encode(array(
       'react_root_id' => MOAA_PORTAL_REACT_ROOT_ID,
+      'react_partner_root_id' => MOAA_PARTNER_PORTAL_REACT_ROOT_ID,
+      'portal_type' => is_page($partner_page) ? 'partner' : 'workshop',
       'rest_base_url' => get_rest_url(null, 'moaa-sheets/v1'),
       'nonce' => wp_create_nonce('wp_rest')
     )), 'before');
