@@ -278,10 +278,62 @@ add_action('user_register', 'moaa_user_register');
 
 //** ----------------------------------------- OTHER HOOKS/FILTERS ----------------------------------------- */
 
+/**
+ * Redirects user with brand_name registered if there is no query parameter
+ */
+function moaa_portal_redirect()
+{
+  $options = get_option(MOAA_OPTION_NAME);
+  $portal_page = $options[MOAA_CLIENT_PORTAL_PAGE_OPTION_KEY];
+  $is_client_portal = is_page($portal_page);
+  if ($is_client_portal) {
+    if (!is_user_logged_in()) {
+      //** redirect if not logged in
+      auth_redirect();
+    } else {
+      $query_param = get_query_var('id');
+      $user = wp_get_current_user();
+      $user_id = $user->ID;
+      $user_type = get_user_meta($user_id, MOAA_USER_META_KEY_USER_TYPE, true);
+      if ($user_type === MOAA_USER_TYPE_PARTNER) {
+        //! user identifier is set to username when registered. if registration logic change don't for get to change this
+        $user_identifier = $user->user_login;
+
+        //* redirect to user's registered brand name
+        if (empty($query_param) || $query_param !== $user_identifier) {
+          $portal_url = home_url('/' . $portal_page);
+          $client_url = add_query_arg('id', $user_identifier, $portal_url);
+          wp_safe_redirect($client_url);
+          exit;
+        }
+      }
+    }
+  }
+}
+
+add_action('template_redirect', 'moaa_portal_redirect');
+
+
+function moaa_login_redirect($redirect_to, $request, $user)
+{
+  $user_type = get_user_meta($user->ID, MOAA_USER_META_KEY_USER_TYPE, true);
+  $option = get_option(MOAA_OPTION_NAME);
+  if ($user_type === "partner" && isset($option)) {
+    $portal_page = $option[MOAA_CLIENT_PORTAL_PAGE_OPTION_KEY];
+    $portal_url = home_url('/' . $portal_page);
+    $client_portal_url = add_query_arg('id', $user->user_login, $portal_url);
+    return $client_portal_url;
+  }
+  return $redirect_to;
+}
+
+add_filter('login_redirect', 'moaa_login_redirect', 10, 3);
+
 function moaa_client_portal_query_vars($qvars)
 {
   $qvars[] = 'workshop';
   $qvars[] = 'partner';
+  $qvars[] = 'id';
   return $qvars;
 }
 
