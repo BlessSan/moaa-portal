@@ -68,7 +68,7 @@ export default function AdminSettingPage() {
             <SelectControl
               __next40pxDefaultSize
               __nextHasNoMarginBottom
-              label="Select Client Portal Page"
+              label="Select Partner Portal Page"
               value={clientPage}
               options={pages}
               onChange={(value) => setClientPage(value)}
