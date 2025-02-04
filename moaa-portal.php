@@ -262,6 +262,17 @@ function moaa_workshop_field()
 //* add custom field when admin add new user
 add_action('user_new_form', 'moaa_workshop_field');
 
+
+function moaa_user_register($user_id)
+{
+  if (isset($_POST['moaa_user_type'])) {
+    update_user_meta($user_id, MOAA_USER_META_KEY_USER_TYPE, $_POST['moaa_user_type']);
+  }
+}
+
+add_action('user_register', 'moaa_user_register');
+
+
 //** ----------------------------------------- USER PROFILE ----------------------------------------- */
 
 
