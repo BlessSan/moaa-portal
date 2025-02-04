@@ -196,6 +196,11 @@ function moaa_register_sheets_routes()
     'methods' => WP_REST_Server::READABLE,
     'callback' => 'moaa_get_sheets_data'
   ));
+  register_rest_route('moaa-sheets/v1', '/getWorkshopResultsPartner', array(
+    'methods' => WP_REST_Server::READABLE,
+    'callback' => 'moaa_get_sheets_data',
+    'permission_callback' => 'moaa_permission_callback'
+  ));
   register_rest_route('moaa-sheets/v1', '/getWorkshopsList', array(
     'methods' => WP_REST_Server::READABLE,
     'callback' => 'moaa_get_workshops_list'

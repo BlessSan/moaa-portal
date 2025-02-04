@@ -20,9 +20,10 @@ axios.interceptors.response.use(
 
 // TODO: may have to handle id
 //* https://tanstack.com/query/latest/docs/framework/react/guides/query-functions
-export const fetchMoaaSheetsData = async (workshopId) => {
+export const fetchMoaaSheetsData = async (workshopId, isPartner) => {
   //* body will be {data:[]}
-  const url = "/getWorkshopResults";
+  //* getWorkshopResultsPartner have same functionality but only added security that require partner user to be logged in
+  const url = isPartner ? "/getWorkshopResultsPartner" : "/getWorkshopResults";
   const response = await axios.get(url, {
     // eslint-disable-next-line no-undef
     //TODO: map dropdown value to params
