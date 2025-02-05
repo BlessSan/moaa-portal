@@ -47,7 +47,6 @@ export const fetchMoaaSheetsData = async (workshopId, isPartner) => {
    * ]
    */
   const resultData = JSON.parse(response.data);
-  console.log(resultData.data);
   return resultData.data;
 };
 
@@ -60,6 +59,5 @@ export const fetchMoaaWorkshopsList = async () => {
   });
 
   const resultData = JSON.parse(response.data);
-  console.log(resultData);
   return resultData.data;
 };

@@ -10,7 +10,6 @@ function App() {
   const [workshopId, setWorkshopId] = useState(null);
 
   const handleDropdownSelect = (value) => {
-    console.log("onchange", value);
     setWorkshopId(value.value);
   };
 

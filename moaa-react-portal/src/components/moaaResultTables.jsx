@@ -49,7 +49,6 @@ const MoaaResultTables = ({ workshopId, isPartner = false }) => {
       }
     });
   } else if (isError) {
-    console.log(error);
     return (
       <>
         <Typography color="error">{error.message}</Typography>
