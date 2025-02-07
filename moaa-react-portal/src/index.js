@@ -2,27 +2,56 @@ import { createRoot } from "react-dom/client";
 import { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import MoaaResultTables from "./components/moaaResultTables";
-import WorkshopListDropdown from "./components/workshopListDropdown";
+import {
+  WorkshopListDropdown,
+  PartnerListDropdown,
+} from "./components/workshopListDropdown";
+import { Grid2 } from "@mui/material";
 
 const queryClient = new QueryClient();
 
 function App() {
-  const [workshopId, setWorkshopId] = useState(null);
+  const [workshopOption, setWorkshopOption] = useState(null);
+  const [partnerOption, setPartnerOption] = useState(null);
 
-  const handleDropdownSelect = (value) => {
-    setWorkshopId(value.value);
+  const handleWorkshopDropdownSelect = (value) => {
+    setWorkshopOption(value);
+    setPartnerOption(null);
+  };
+
+  const handlePartnerDropdownSelect = (value) => {
+    setPartnerOption(value);
+    setWorkshopOption(null);
   };
 
   return (
     <QueryClientProvider client={queryClient}>
       <div className="moaa_webapp_container">
-        <WorkshopListDropdown
-          handleDropdownSelect={(value) => handleDropdownSelect(value)}
-          workshopId={workshopId}
-        />
+        <Grid2 container spacing={1} direction="row">
+          <Grid2 size="grow">
+            <WorkshopListDropdown
+              handleDropdownSelect={(value) =>
+                handleWorkshopDropdownSelect(value)
+              }
+              workshopOption={workshopOption}
+            />
+          </Grid2>
+          <Grid2 size="grow">
+            <PartnerListDropdown
+              handleDropdownSelect={(value) =>
+                handlePartnerDropdownSelect(value)
+              }
+              partnerOption={partnerOption}
+            />
+          </Grid2>
+        </Grid2>
         <div className="moaa_webapp_table_container">
-          {workshopId || workshopId?.length === 0 ? (
-            <MoaaResultTables workshopId={workshopId} />
+          {workshopOption?.value ||
+          workshopOption?.value.length === 0 ||
+          partnerOption?.value ? (
+            <MoaaResultTables
+              workshopId={workshopOption?.value ?? partnerOption?.value}
+            />
           ) : null}
         </div>
       </div>
