@@ -61,3 +61,15 @@ export const fetchMoaaWorkshopsList = async () => {
   const resultData = JSON.parse(response.data);
   return resultData.data;
 };
+
+export const fetchMoaaPartnersList = async () => {
+  const url = "/getPartnersList";
+
+  const response = await axios.get(url, {
+    // eslint-disable-next-line no-undef
+    headers: { "X-WP-nonce": USER.nonce },
+  });
+
+  const resultData = JSON.parse(response.data);
+  return resultData.data;
+};

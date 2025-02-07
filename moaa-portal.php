@@ -179,6 +179,33 @@ function moaa_get_workshops_list($request)
   }
 }
 
+function moaa_get_partners_list($request)
+{
+  $options = get_option(MOAA_OPTION_NAME);
+  $moaa_sheets_url = $options[MOAA_SHEETS_URL_OPTION_KEY];
+  if ($moaa_sheets_url) {
+
+    $moaa_sheets_partner_list = get_transient('moaa_sheets_partner_list');
+    if ($moaa_sheets_partner_list === false) {
+
+      $response = wp_remote_get($moaa_sheets_url . '?action=getPartners');
+
+      if (is_wp_error($response)) {
+        return rest_ensure_response($response);
+      }
+
+      $body = wp_remote_retrieve_body($response);
+      set_transient('moaa_sheets_partner_list', $body, 5);
+      return rest_ensure_response(get_transient('moaa_sheets_partner_list'));
+    } else {
+      return rest_ensure_response($moaa_sheets_partner_list);
+    }
+  } else {
+    $error = new WP_Error('moaa_missing_sheets_url', esc_html__('moaa google sheets url missing or not set by admin'), array('status' => 500));
+    return rest_ensure_response($error);
+  }
+}
+
 function moaa_permission_callback($request)
 {
   if (is_user_logged_in()) {
@@ -204,6 +231,10 @@ function moaa_register_sheets_routes()
   register_rest_route('moaa-sheets/v1', '/getWorkshopsList', array(
     'methods' => WP_REST_Server::READABLE,
     'callback' => 'moaa_get_workshops_list'
+  ));
+  register_rest_route('moaa-sheets/v1', '/getPartnersList', array(
+    'methods' => WP_REST_Server::READABLE,
+    'callback' => 'moaa_get_partners_list'
   ));
 }
 
