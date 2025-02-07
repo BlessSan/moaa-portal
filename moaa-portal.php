@@ -265,8 +265,7 @@ function moaa_partner_portal_react_root()
   if (is_user_logged_in()) {
     $user = wp_get_current_user();
     $id = $user->ID;
-    $user_type = get_user_meta($id, MOAA_USER_META_KEY_USER_TYPE, true);
-    if ($user_type === MOAA_USER_TYPE_PARTNER) {
+    if (current_user_can(MOAA_USER_TYPE_PARTNER) || current_user_can('administrator')) {
       ob_start();
       ?>
       <div id="<?php echo MOAA_PARTNER_PORTAL_REACT_ROOT_ID ?>"></div>
@@ -288,29 +287,19 @@ add_action('init', 'moaa_shortcodes_init');
 
 //** ----------------------------------------- REGISTRATION/LOGIN ----------------------------------------- */
 
-function moaa_workshop_field()
-{
-  //* insert react component for adding new user page
-  ?>
-  <div id="<?php echo MOAA_ADMIN_ADD_USER_ROOT_DIV ?>"></div>
-  <?php
-}
-//* add custom field when admin add new user
-add_action('user_new_form', 'moaa_workshop_field');
-
-
-function moaa_user_register($user_id)
-{
-  if (isset($_POST['moaa_user_type'])) {
-    update_user_meta($user_id, MOAA_USER_META_KEY_USER_TYPE, $_POST['moaa_user_type']);
-  }
-}
-
-add_action('user_register', 'moaa_user_register');
-
-
 //** ----------------------------------------- USER PROFILE ----------------------------------------- */
 
+function moaa_add_partner_role_to_dropdown($roles)
+{
+  $partner_role = get_role(MOAA_USER_TYPE_PARTNER);
+
+  if ($partner_role) {
+    $roles[MOAA_USER_TYPE_PARTNER] = array('name' => __('Partner'), 'capabilities' => $partner_role->capabilities);
+  }
+  return $roles;
+}
+
+add_filter('editable_roles', 'moaa_add_partner_role_to_dropdown');
 
 //** ----------------------------------------- OTHER HOOKS/FILTERS ----------------------------------------- */
 
@@ -329,9 +318,7 @@ function moaa_portal_redirect()
     } else {
       $query_param = get_query_var('id');
       $user = wp_get_current_user();
-      $user_id = $user->ID;
-      $user_type = get_user_meta($user_id, MOAA_USER_META_KEY_USER_TYPE, true);
-      if ($user_type === MOAA_USER_TYPE_PARTNER) {
+      if (current_user_can(MOAA_USER_TYPE_PARTNER)) {
         //! user identifier is set to username when registered. if registration logic change don't for get to change this
         $user_identifier = $user->user_login;
 
@@ -352,9 +339,8 @@ add_action('template_redirect', 'moaa_portal_redirect');
 
 function moaa_login_redirect($redirect_to, $request, $user)
 {
-  $user_type = get_user_meta($user->ID, MOAA_USER_META_KEY_USER_TYPE, true);
   $option = get_option(MOAA_OPTION_NAME);
-  if ($user_type === "partner" && isset($option)) {
+  if ($user && in_array(MOAA_USER_TYPE_PARTNER, $user->roles) && isset($option)) {
     $portal_page = $option[MOAA_CLIENT_PORTAL_PAGE_OPTION_KEY];
     $portal_url = home_url('/' . $portal_page);
     $client_portal_url = add_query_arg('id', $user->user_login, $portal_url);
@@ -455,6 +441,10 @@ function moaa_activate()
   $plugin = isset($_REQUEST['plugin']) ? $_REQUEST['plugin'] : '';
   check_admin_referer("activate-plugin_{$plugin}");
   // do some init stuff if any
+  if (!get_role(MOAA_USER_TYPE_PARTNER)) {
+    add_role(MOAA_USER_TYPE_PARTNER, __('Partner'), array('read' => true));
+  }
+
   // Clear the permalinks after the post type has been registered.
   flush_rewrite_rules();
 }
