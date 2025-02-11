@@ -74,6 +74,14 @@ function PartnerPortal() {
   );
 }
 
+function AggregateDataPage() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <MoaaResultTables workshopId={null} />
+    </QueryClientProvider>
+  );
+}
+
 // const container = document.querySelector("#react-portal-root");
 // const shadowContainer = container.attachShadow({ mode: "open" });
 // const shadowRootElement = document.createElement("div");
@@ -115,14 +123,21 @@ function PartnerPortal() {
 
 const workshopPortalRootDiv = document.getElementById(USER.react_root_id);
 
-const PartnerPortalRootDiv = document.getElementById(
+const partnerPortalRootDiv = document.getElementById(
   USER.react_partner_root_id
+);
+
+const aggregateDataPageRootDiv = document.getElementById(
+  USER.react_aggregate_root_id
 );
 
 if (workshopPortalRootDiv) {
   const root = createRoot(workshopPortalRootDiv);
   root.render(<App />);
-} else {
-  const partnerPortalRoot = createRoot(PartnerPortalRootDiv);
+} else if (partnerPortalRootDiv) {
+  const partnerPortalRoot = createRoot(partnerPortalRootDiv);
   partnerPortalRoot.render(<PartnerPortal />);
+} else {
+  const aggregateDataPageRoot = createRoot(aggregateDataPageRootDiv);
+  aggregateDataPageRoot.render(<AggregateDataPage />);
 }

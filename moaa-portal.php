@@ -23,13 +23,17 @@ define("MOAA_ADMIN_SETTING_ROOT_DIV", "moaa_setting_page_root");
 define("MOAA_WORKSHOP_PORTAL_PAGE_OPTION_KEY", "portalPage");
 define("MOAA_CLIENT_PORTAL_PAGE_OPTION_KEY", "clientPage");
 define("MOAA_ASSESSMENT_PAGE_OPTION_KEY", "assessmentPage");
+define("MOAA_AGGREAGATE_PAGE_OPTION_KEY", "aggregatePage");
 define("MOAA_SHEETS_URL_OPTION_KEY", "sheetsUrl");
 define("MOAA_USER_TYPE_WORKSHOP", "workshop");
 define("MOAA_USER_TYPE_PARTNER", "partner");
 define('MOAA_PORTAL_REACT_ROOT_ID', "moaa-portal-react-root");
 define('MOAA_PARTNER_PORTAL_REACT_ROOT_ID', "moaa-partner-portal-react-root");
+define('MOAA_AGGREGATE_DATA_REACT_ROOT_ID', "moaa-aggregate-data-react-root");
 define('MOAA_WORKSHOP_PORTAL_SHORTCODE_NAME', 'moaa_workshop_portal');
 define('MOAA_PARTNER_PORTAL_SHORTCODE_NAME', 'moaa_partner_portal');
+define('MOAA_AGGREGATE_PAGE_SHORTCODE_NAME', 'moaa_aggregate_page');
+
 
 
 
@@ -50,6 +54,7 @@ function moaa_settings_init()
   $default = array(
     MOAA_WORKSHOP_PORTAL_PAGE_OPTION_KEY => $defaultPageOption,
     MOAA_CLIENT_PORTAL_PAGE_OPTION_KEY => $defaultPageOption,
+    MOAA_AGGREAGATE_PAGE_OPTION_KEY => $defaultPageOption,
     MOAA_SHEETS_URL_OPTION_KEY => '',
   );
 
@@ -60,6 +65,9 @@ function moaa_settings_init()
         'type' => 'string',
       ),
       MOAA_CLIENT_PORTAL_PAGE_OPTION_KEY => array(
+        'type' => 'string'
+      ),
+      MOAA_AGGREAGATE_PAGE_OPTION_KEY => array(
         'type' => 'string'
       ),
       MOAA_SHEETS_URL_OPTION_KEY => array(
@@ -248,6 +256,7 @@ function moaa_shortcodes_init()
 {
   add_shortcode(MOAA_WORKSHOP_PORTAL_SHORTCODE_NAME, 'moaa_workshop_portal_react_root');
   add_shortcode(MOAA_PARTNER_PORTAL_SHORTCODE_NAME, 'moaa_partner_portal_react_root');
+  add_shortcode(MOAA_AGGREGATE_PAGE_SHORTCODE_NAME, 'moaa_aggregate_page_react_root');
 }
 
 
@@ -280,6 +289,15 @@ function moaa_partner_portal_react_root()
     }
 
   }
+}
+
+function moaa_aggregate_page_react_root()
+{
+  ob_start();
+  ?>
+  <div id="<?php echo MOAA_AGGREGATE_DATA_REACT_ROOT_ID ?>"></div>
+  <?php
+  return ob_get_clean();
 }
 
 
@@ -367,11 +385,13 @@ function enqueue_react_scripts()
   //TODO: when no query variable, consider where the level of control of not displaying the table
   //* could be done from here by not queueing the script
   //* or from react
-  $portal_page = get_option(MOAA_OPTION_NAME)[MOAA_WORKSHOP_PORTAL_PAGE_OPTION_KEY];
-  $partner_page = get_option(MOAA_OPTION_NAME)[MOAA_CLIENT_PORTAL_PAGE_OPTION_KEY];
+  $option = get_option(MOAA_OPTION_NAME);
+  $portal_page = $option[MOAA_WORKSHOP_PORTAL_PAGE_OPTION_KEY];
+  $partner_page = $option[MOAA_CLIENT_PORTAL_PAGE_OPTION_KEY];
+  $aggregate_page = $option[MOAA_AGGREAGATE_PAGE_OPTION_KEY];
 
 
-  if (is_page($portal_page) || is_page($partner_page)) {
+  if (is_page($portal_page) || is_page($partner_page) || is_page($aggregate_page)) {
 
     $asset_file = plugin_dir_path(__FILE__) . 'moaa-react-portal/build/index.asset.php';
 
@@ -385,6 +405,7 @@ function enqueue_react_scripts()
     wp_add_inline_script('moaa_react_portal_script', 'const USER = ' . json_encode(array(
       'react_root_id' => MOAA_PORTAL_REACT_ROOT_ID,
       'react_partner_root_id' => MOAA_PARTNER_PORTAL_REACT_ROOT_ID,
+      'react_aggregate_root_id' => MOAA_AGGREGATE_DATA_REACT_ROOT_ID,
       'portal_type' => is_page($partner_page) ? 'partner' : 'workshop',
       'rest_base_url' => get_rest_url(null, 'moaa-sheets/v1'),
       'nonce' => wp_create_nonce('wp_rest')
@@ -419,6 +440,7 @@ function moaa_admin_react_scripts()
   wp_add_inline_script('moaa_admin_react_script', 'const USER = ' . json_encode(array(
     'shortcode_name' => MOAA_WORKSHOP_PORTAL_SHORTCODE_NAME,
     'partner_shortcode_name' => MOAA_PARTNER_PORTAL_SHORTCODE_NAME,
+    'aggregate_shortcode_name' => MOAA_AGGREGATE_PAGE_SHORTCODE_NAME,
   )), 'before');
 
   wp_enqueue_style('wp-components');
