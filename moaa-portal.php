@@ -272,8 +272,6 @@ function moaa_workshop_portal_react_root()
 function moaa_partner_portal_react_root()
 {
   if (is_user_logged_in()) {
-    $user = wp_get_current_user();
-    $id = $user->ID;
     if (current_user_can(MOAA_USER_TYPE_PARTNER) || current_user_can('administrator')) {
       ob_start();
       ?>
