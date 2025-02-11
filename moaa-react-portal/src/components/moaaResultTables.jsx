@@ -15,7 +15,7 @@ import {
   Typography,
 } from "@mui/material";
 
-import RefreshIcon from "@mui/icons-material/Refresh";
+import QueryRefetchButton from "./QueryRefetchButton";
 
 const MoaaResultTables = ({ workshopId, isPartner = false }) => {
   // const [isPending, isError, data, isRefetching] =
@@ -29,28 +29,28 @@ const MoaaResultTables = ({ workshopId, isPartner = false }) => {
   const { data, isPending, isSuccess, status, isError, error } = queryResult;
 
   if (isSuccess) {
-    return data.map((worksheet, index) => {
-      if (worksheet.data.length > 0) {
-        return (
-          <Table
-            key={worksheet.worksheet}
-            queryResult={queryResult}
-            isWorkshopTable={worksheet.isWorkshopTable}
-            worksheetData={worksheet.data}
-            worksheetStats={worksheet.columnsSummaryData}
-            worksheetType={worksheet.type}
-            worksheetName={worksheet.worksheet}
-          />
-        );
-      } else {
-        return (
-          <TableNoDataError key={index} worksheetName={worksheet.worksheet} />
-        );
-      }
-    });
+    return (
+      <>
+        <QueryRefetchButton queryKey={["tableData", workshopId, isPartner]} />
+        {data.map((worksheet, index) => {
+          return (
+            <Table
+              key={worksheet.worksheet}
+              queryResult={queryResult}
+              isWorkshopTable={worksheet.isWorkshopTable}
+              worksheetData={worksheet.data}
+              worksheetStats={worksheet.columnsSummaryData}
+              worksheetType={worksheet.type}
+              worksheetName={worksheet.worksheet}
+            />
+          );
+        })}
+      </>
+    );
   } else if (isError) {
     return (
       <>
+        <QueryRefetchButton queryKey={["tableData", workshopId, isPartner]} />
         <Typography color="error">{error.message}</Typography>
         {error?.response?.data?.message ? (
           <Typography variant="caption" color="warning">
@@ -62,6 +62,7 @@ const MoaaResultTables = ({ workshopId, isPartner = false }) => {
   } else {
     return (
       <div>
+        <QueryRefetchButton queryKey={["tableData", workshopId, isPartner]} />
         <Typography color="info">Status: {status}</Typography>
         <LinearProgress />
       </div>
@@ -77,6 +78,12 @@ const Table = ({
   worksheetType,
   worksheetName,
 }) => {
+  if (worksheetData.length === 0) {
+    return (
+      <TableNoDataError key={worksheetName} worksheetName={worksheetName} />
+    );
+  }
+
   const { isPending, isError, error, isLoading, isRefetching, refetch } =
     queryResult;
 
@@ -169,10 +176,6 @@ const Table = ({
             alignItems: "center",
           }}
         >
-          <IconButton onClick={() => refetch()}>
-            <RefreshIcon />
-          </IconButton>
-
           <Typography align="center" variant="subtitle1">
             {worksheetName}
           </Typography>
