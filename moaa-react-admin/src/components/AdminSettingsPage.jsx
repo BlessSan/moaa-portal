@@ -39,6 +39,8 @@ export default function AdminSettingPage() {
     setPortalPage,
     clientPage,
     setClientPage,
+    aggregatePage,
+    setAggregatePage,
     sheetsUrl,
     setSheetsUrl,
     saveSettings,
@@ -47,6 +49,8 @@ export default function AdminSettingPage() {
   const shortcodeName = USER.shortcode_name;
 
   const partnerShortcodeName = USER.partner_shortcode_name;
+
+  const aggregateShortcodeName = USER.aggregate_shortcode_name;
 
   return (
     <div style={{ boxSizing: "border-box" }}>
@@ -77,6 +81,15 @@ export default function AdminSettingPage() {
               onChange={(value) => setClientPage(value)}
             />
             <DisplayShortCodeTip shortcodeName={partnerShortcodeName} />
+            <SelectControl
+              __next40pxDefaultSize
+              __nextHasNoMarginBottom
+              label="Select Aggregate Data Page"
+              value={aggregatePage}
+              options={pages}
+              onChange={(value) => setAggregatePage(value)}
+            />
+            <DisplayShortCodeTip shortcodeName={aggregateShortcodeName} />
             <TextControl
               __nextHasNoMarginBottom
               __next40pxDefaultSize
@@ -104,6 +117,7 @@ const useSettings = () => {
   const { createSuccessNotice } = useDispatch(noticesStore);
   const [portalPage, setPortalPage] = useState();
   const [clientPage, setClientPage] = useState();
+  const [aggregatePage, setAggregatePage] = useState();
   const [sheetsUrl, setSheetsUrl] = useState("");
   const [pagesOptions, setPages] = useState([]);
 
@@ -112,7 +126,7 @@ const useSettings = () => {
       path: "/wp/v2/settings",
       method: "POST",
       data: {
-        moaa_options: { portalPage, clientPage, sheetsUrl },
+        moaa_options: { portalPage, clientPage, aggregatePage, sheetsUrl },
       },
     }).then(() => {
       createSuccessNotice("Settings Saved");
@@ -125,6 +139,7 @@ const useSettings = () => {
       console.log(settings);
       setPortalPage(settings.moaa_options.portalPage);
       setClientPage(settings.moaa_options.clientPage);
+      setAggregatePage(settings.moaa_options.aggregatePage);
       setSheetsUrl(settings.moaa_options.sheetsUrl);
     });
     apiFetch({ path: "/wp/v2/pages?_fields=slug&per_page=100" }).then(
@@ -144,6 +159,8 @@ const useSettings = () => {
     setPortalPage,
     clientPage,
     setClientPage,
+    aggregatePage,
+    setAggregatePage,
     sheetsUrl,
     setSheetsUrl,
     saveSettings,
