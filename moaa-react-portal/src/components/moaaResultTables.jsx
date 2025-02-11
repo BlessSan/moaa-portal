@@ -62,7 +62,6 @@ const MoaaResultTables = ({ workshopId, isPartner = false }) => {
   } else {
     return (
       <div>
-        <QueryRefetchButton queryKey={["tableData", workshopId, isPartner]} />
         <Typography color="info">Status: {status}</Typography>
         <LinearProgress />
       </div>
