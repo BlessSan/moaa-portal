@@ -48,6 +48,13 @@ export const WorkshopListDropdown = ({
             ...baseStyles,
             zIndex: 10,
           }),
+          placeholder: (baseStyles) => ({
+            ...baseStyles,
+            whiteSpace: "nowrap", // Prevent text from wrapping
+            overflow: "hidden", // Hide overflow text
+            textOverflow: "ellipsis", // Add ellipsis for overflow
+            maxWidth: "100%", // Ensure it doesn't exceed container width
+          }),
         }}
       />
       {isError ? (
@@ -93,6 +100,13 @@ export const PartnerListDropdown = ({
           menu: (baseStyles, state) => ({
             ...baseStyles,
             zIndex: 10,
+          }),
+          placeholder: (baseStyles) => ({
+            ...baseStyles,
+            whiteSpace: "nowrap", // Prevent text from wrapping
+            overflow: "hidden", // Hide overflow text
+            textOverflow: "ellipsis", // Add ellipsis for overflow
+            maxWidth: "100%", // Ensure it doesn't exceed container width
           }),
         }}
       />
