@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 
 import QueryRefetchButton from "./QueryRefetchButton";
+import Charts from "./Charts";
 
 const MoaaResultTables = ({ workshopId, isPartner = false }) => {
   // const [isPending, isError, data, isRefetching] =
@@ -34,15 +35,25 @@ const MoaaResultTables = ({ workshopId, isPartner = false }) => {
         <QueryRefetchButton queryKey={["tableData", workshopId, isPartner]} />
         {data.map((worksheet, index) => {
           return (
-            <Table
-              key={worksheet.worksheet}
-              queryResult={queryResult}
-              isWorkshopTable={worksheet.isWorkshopTable}
-              worksheetData={worksheet.data}
-              worksheetStats={worksheet.columnsSummaryData}
-              worksheetType={worksheet.type}
-              worksheetName={worksheet.worksheet}
-            />
+            <div key={worksheet.worksheet}>
+              <Table
+                queryResult={queryResult}
+                isWorkshopTable={worksheet.isWorkshopTable}
+                worksheetData={worksheet.data}
+                worksheetStats={worksheet.columnsSummaryData}
+                worksheetType={worksheet.type}
+                worksheetName={worksheet.worksheet}
+              />
+              {worksheet.chartData && (
+                <Charts
+                  chartData={worksheet.chartData}
+                  chartLabel={{
+                    aggregate: worksheet.data[0],
+                    filtered: worksheet.columnsSummaryData,
+                  }}
+                />
+              )}
+            </div>
           );
         })}
       </>
