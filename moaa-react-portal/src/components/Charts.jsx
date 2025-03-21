@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Chart as ChartJS,
   PieController,
@@ -15,6 +15,8 @@ import { Chart } from "react-chartjs-2";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { generateColors } from "../modules/generateColors";
 import Grid from "@mui/material/Grid2";
+import Box from "@mui/material/Box";
+import HTMLLegend from "./CustomLegend";
 
 ChartJS.register(
   PieController,
@@ -30,23 +32,7 @@ ChartJS.register(
 );
 
 /**
- * chartData from api will be an object with the following structure:
- * {
- *   type: "pie" | "bar",
- *   data: [{
- *     labels: ["label1", "label2", "label3"],
- *     datasets: [
- *       {
- *         label: "dataset1",
- *         data: [1, 2, 3],
- *       },
- *       {
- *         label: "dataset2",
- *         data: [4, 5, 6],
- *       }
- *     ]
- *   }]
- * }
+ * Main Charts component that handles multiple chart datasets
  */
 const Charts = ({ chartData, chartLabel }) => {
   if (chartData.data) {
@@ -61,12 +47,11 @@ const Charts = ({ chartData, chartLabel }) => {
       );
     });
   }
+  return null;
 };
 
 const MOAAChart = ({ type, data, chartLabel }) => {
   const [chartData, setChartData] = useState(null);
-
-  console.log(chartData);
 
   useEffect(() => {
     const labels = data.labels;
@@ -86,7 +71,7 @@ const MOAAChart = ({ type, data, chartLabel }) => {
     });
   }, [data]);
 
-  // display label value as value of the data for tables (e.g. the already-formatted values such as x (y%) or $x)
+  // Display label value as value of the data for tables
   const dataLabels = {
     display: true,
     formatter: (value, context) => {
@@ -108,9 +93,11 @@ const MOAAChart = ({ type, data, chartLabel }) => {
   };
 
   const defaultOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
-        display: true,
+        display: type === "pie", // Only show built-in legend for pie charts
         position: "bottom",
       },
       title: {
@@ -124,6 +111,8 @@ const MOAAChart = ({ type, data, chartLabel }) => {
 
   const options = (datasetLabel, type) => {
     const specificOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
       pie: {
         plugins: {
           ...defaultOptions.plugins,
@@ -132,43 +121,21 @@ const MOAAChart = ({ type, data, chartLabel }) => {
             text: datasetLabel,
           },
         },
-        maintainAspectRatio: true, // Allow the chart to control its own aspect ratio
-        responsive: true,
       },
       bar: {
+        responsive: true,
+        maintainAspectRatio: false,
         plugins: {
           ...defaultOptions.plugins,
           title: {
             display: true,
             text: datasetLabel,
           },
-          legend: {
-            display: true,
-            position: "right",
-            labels: {
-              generateLabels: (chart) => {
-                console.log(chart);
-                return chart.data.labels.map((label, index) => ({
-                  text: label,
-                  strokeStyle: chart.data.datasets[0].borderColor[index],
-                  fillStyle: chart.data.datasets[0].backgroundColor[index],
-                }));
-              },
-            },
-          },
         },
         scales: {
           x: {
             ticks: {
               display: false,
-            },
-          },
-          y: {
-            ticks: {
-              callback: (value, index, values) => {
-                console.log([value, index, values]);
-                return value;
-              },
             },
           },
         },
@@ -182,10 +149,6 @@ const MOAAChart = ({ type, data, chartLabel }) => {
   };
 
   const gridSize = type === "pie" ? { xs: 12, sm: 6 } : { xs: 12 };
-  const containerStyle =
-    type === "pie"
-      ? { position: "relative", height: "50vh", width: "100%" }
-      : { position: "relative", height: "100%", width: "100%" };
 
   return (
     chartData && (
@@ -201,15 +164,77 @@ const MOAAChart = ({ type, data, chartLabel }) => {
           <Grid
             size={gridSize}
             key={index}
-            sx={{ display: "flex", justifyContent: "center" }}
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+            }}
           >
-            {/* <div className="chart-container" style={containerStyle}> */}
-            <Chart
-              type={type}
-              data={{ labels: chartData.labels, datasets: [dataset] }}
-              options={options(dataset.label, type)}
-            />
-            {/* </div> */}
+            {/* Chart container with horizontal overflow */}
+            <Box
+              sx={{
+                width: "100%",
+                overflowX: "auto",
+                overflowY: "hidden",
+              }}
+            >
+              {/* Chart and legend container */}
+              <Box
+                sx={{
+                  display: "flex",
+                  minWidth: type === "bar" ? "min(700px, 100%)" : "100%",
+                  height: "450px",
+                }}
+              >
+                {/* Chart container */}
+                <Box
+                  sx={{
+                    flex: {
+                      xs: "1 1 80%", // On small screens: basis 80%
+                      md: "1 1 75%", // On medium screens: basis 75%
+                      lg: "1 1 70%", // On large screens: basis 70%
+                    },
+                    position: "relative",
+                  }}
+                >
+                  <Chart
+                    type={type}
+                    data={{ labels: chartData.labels, datasets: [dataset] }}
+                    options={options(dataset.label, type)}
+                  />
+                </Box>
+
+                {/* HTML Legend for bar charts */}
+                {type === "bar" && (
+                  <Box
+                    sx={{
+                      flex: {
+                        xs: "1 1 20%", // On small screens: basis 20%
+                        md: "1 1 25%", // On medium screens: basis 25%
+                        lg: "1 1 30%", // On large screens: basis 30%
+                      },
+                      marginLeft: "16px",
+                      height: "100%", // Take full height of parent
+                      display: "flex", // Create a nested flex container
+                      flexDirection: "column",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        minWidth: "200px",
+                        marginLeft: "16px",
+                        overflowY: "auto",
+                        height: "100%", // Match chart height
+                      }}
+                    >
+                      <HTMLLegend
+                        labels={chartData.labels}
+                        colors={dataset.backgroundColor}
+                      />
+                    </Box>
+                  </Box>
+                )}
+              </Box>
+            </Box>
           </Grid>
         ))}
       </Grid>
