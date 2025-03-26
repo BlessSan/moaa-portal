@@ -11,6 +11,7 @@ import {
   Legend,
   Title,
 } from "chart.js";
+import merge from "lodash/merge";
 import { Chart } from "react-chartjs-2";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { generateColors } from "../modules/generateColors";
@@ -106,14 +107,12 @@ const MOAAChart = ({ type, data, chartLabel }) => {
       },
       datalabels: dataLabels,
     },
-    scales: {},
   };
 
   const options = (datasetLabel, type) => {
     const specificOptions = {
       pie: {
         plugins: {
-          ...defaultOptions.plugins,
           title: {
             display: true,
             text: datasetLabel,
@@ -124,7 +123,6 @@ const MOAAChart = ({ type, data, chartLabel }) => {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          ...defaultOptions.plugins,
           title: {
             display: true,
             text: datasetLabel,
@@ -140,10 +138,7 @@ const MOAAChart = ({ type, data, chartLabel }) => {
       },
     };
 
-    return {
-      ...defaultOptions,
-      ...specificOptions[type],
-    };
+    return merge({}, defaultOptions, specificOptions[type]);
   };
 
   const gridSize = type === "pie" ? { xs: 12, sm: 6 } : { xs: 12 };
