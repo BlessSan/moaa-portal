@@ -1,5 +1,5 @@
-import { Box, Typography } from "@mui/material";
-
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 /**
  * Custom HTML Legend component
  */
@@ -7,11 +7,14 @@ const HTMLLegend = ({ labels, colors }) => {
   return (
     <Box
       sx={{
-        overflowY: "auto",
+        overflowY: "auto", // Vertical scrolling
         display: "flex",
         flexDirection: "column",
-        height: "100%",
-        justifyContent: "center",
+        justifyContent: "flex-start", // Not center - allows proper scrolling
+        height: "100%", // Takes full height of parent
+        width: "100%", // Use full width of parent
+        boxSizing: "border-box",
+        padding: "8px 4px",
       }}
     >
       {labels.map((label, index) => (
@@ -21,6 +24,7 @@ const HTMLLegend = ({ labels, colors }) => {
             display: "flex",
             alignItems: "center",
             marginBottom: "4px",
+            width: "100%", // Full width
           }}
         >
           <Box
@@ -34,7 +38,12 @@ const HTMLLegend = ({ labels, colors }) => {
               flexShrink: 0,
             }}
           />
-          <Typography variant="body2" sx={{ fontSize: "11px" }}>
+          <Typography
+            variant="legendText"
+            sx={{
+              width: "100%", // Allow text to take remaining space
+            }}
+          >
             {label}
           </Typography>
         </Box>

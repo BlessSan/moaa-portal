@@ -94,7 +94,7 @@ const MOAAChart = ({ type, data, chartLabel }) => {
 
   const defaultOptions = {
     responsive: true,
-    maintainAspectRatio: false,
+    maintainAspectRatio: true,
     plugins: {
       legend: {
         display: type === "pie", // Only show built-in legend for pie charts
@@ -111,8 +111,6 @@ const MOAAChart = ({ type, data, chartLabel }) => {
 
   const options = (datasetLabel, type) => {
     const specificOptions = {
-      responsive: true,
-      maintainAspectRatio: false,
       pie: {
         plugins: {
           ...defaultOptions.plugins,
@@ -181,19 +179,34 @@ const MOAAChart = ({ type, data, chartLabel }) => {
               <Box
                 sx={{
                   display: "flex",
-                  minWidth: type === "bar" ? "min(700px, 100%)" : "100%",
-                  height: "450px",
+                  minWidth: type === "bar" ? "min(400px, 90%)" : "100%",
+                  width: "100%",
+                  maxWidth: "1200px", // Prevent excessive stretching
+                  marginLeft: "auto", // Center the chart if container is wider
+                  marginRight: "auto", // Center the chart if container is wider
+                  height: {
+                    xs: "250px", // Mobile
+                    sm: "300px", // Tablet
+                    md: "400px", // Desktop
+                    lg: "450px", // Large desktop
+                  },
                 }}
               >
                 {/* Chart container */}
                 <Box
                   sx={{
-                    flex: {
-                      xs: "1 1 80%", // On small screens: basis 80%
-                      md: "1 1 75%", // On medium screens: basis 75%
-                      lg: "1 1 70%", // On large screens: basis 70%
-                    },
+                    flex:
+                      type === "bar"
+                        ? {
+                            xs: "1 1 80%", // On small screens: basis 80%
+                            md: "1 1 75%", // On medium screens: basis 75%
+                            lg: "1 1 70%", // On large screens: basis 70%
+                          }
+                        : "1 1 100%",
                     position: "relative",
+                    display: "flex",
+                    justifyContent: type !== "bar" ? "center" : "flex-start",
+                    minHeight: "100%", // Ensures it takes full height of parent
                   }}
                 >
                   <Chart
@@ -213,24 +226,15 @@ const MOAAChart = ({ type, data, chartLabel }) => {
                         lg: "1 1 30%", // On large screens: basis 30%
                       },
                       marginLeft: "16px",
-                      height: "100%", // Take full height of parent
-                      display: "flex", // Create a nested flex container
+                      display: "flex",
                       flexDirection: "column",
+                      minWidth: "200px", // Ensure legend has enough space
                     }}
                   >
-                    <Box
-                      sx={{
-                        minWidth: "200px",
-                        marginLeft: "16px",
-                        overflowY: "auto",
-                        height: "100%", // Match chart height
-                      }}
-                    >
-                      <HTMLLegend
-                        labels={chartData.labels}
-                        colors={dataset.backgroundColor}
-                      />
-                    </Box>
+                    <HTMLLegend
+                      labels={chartData.labels}
+                      colors={dataset.backgroundColor}
+                    />
                   </Box>
                 )}
               </Box>
