@@ -45,13 +45,7 @@ const MoaaResultTables = ({ workshopId, isPartner = false }) => {
                 worksheetName={worksheet.worksheet}
               />
               {worksheet.chartData && (
-                <Charts
-                  chartData={worksheet.chartData}
-                  chartLabel={{
-                    aggregate: worksheet.data[0],
-                    filtered: worksheet.columnsSummaryData,
-                  }}
-                />
+                <Charts chartData={worksheet.chartData} />
               )}
             </div>
           );

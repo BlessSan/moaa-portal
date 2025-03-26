@@ -18,6 +18,8 @@ import { generateColors } from "../modules/generateColors";
 import Grid from "@mui/material/Grid2";
 import Box from "@mui/material/Box";
 import HTMLLegend from "./CustomLegend";
+import Stack from "@mui/material/Stack";
+import { Typography } from "@mui/material";
 
 ChartJS.register(
   PieController,
@@ -35,23 +37,25 @@ ChartJS.register(
 /**
  * Main Charts component that handles multiple chart datasets
  */
-const Charts = ({ chartData, chartLabel }) => {
+const Charts = ({ chartData }) => {
   if (chartData.data) {
-    return chartData.data.map((chartDataset, index) => {
-      return (
-        <MOAAChart
-          key={index}
-          type={chartData.type}
-          data={chartDataset}
-          chartLabel={chartLabel}
-        />
-      );
-    });
+    return (
+      <Stack spacing={2}>
+        <Box sx={{ textAlign: "center" }}>
+          <Typography variant="h6">{chartData.title}</Typography>
+        </Box>
+        <Box>
+          {chartData.data.map((chartDataset, index) => (
+            <MOAAChart key={index} type={chartData.type} data={chartDataset} />
+          ))}
+        </Box>
+      </Stack>
+    );
   }
   return null;
 };
 
-const MOAAChart = ({ type, data, chartLabel }) => {
+const MOAAChart = ({ type, data }) => {
   const [chartData, setChartData] = useState(null);
 
   useEffect(() => {
@@ -59,6 +63,7 @@ const MOAAChart = ({ type, data, chartLabel }) => {
     const datasets = data.datasets.map((dataset) => ({
       label: dataset.label,
       data: dataset.data,
+      customLabels: dataset.customLabels,
       backgroundColor: generateColors(dataset.data.length),
       borderColor: generateColors(dataset.data.length).map((color) =>
         color.replace("0.6", "1")
@@ -81,6 +86,9 @@ const MOAAChart = ({ type, data, chartLabel }) => {
         return "";
       }
 
+      const datasetIndex = context.datasetIndex;
+      const index = context.dataIndex;
+      return context.chart.data.datasets[datasetIndex].customLabels[index];
     },
     font: function (context) {
       var avgSize = Math.round(
@@ -110,6 +118,19 @@ const MOAAChart = ({ type, data, chartLabel }) => {
       title: {
         display: true,
         text: "",
+      },
+      tooltip: {
+        callbacks: {
+          label: function (context) {
+            const chartGroup = context.dataset.label;
+            const datasetIndex = context.datasetIndex;
+            const index = context.dataIndex;
+            const displayValue =
+              context.chart.data.datasets[datasetIndex].customLabels[index];
+
+            return `${chartGroup}: ${displayValue}`;
+          },
+        },
       },
       datalabels: dataLabels,
     },
