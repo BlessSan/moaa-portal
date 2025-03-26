@@ -63,6 +63,7 @@ const MOAAChart = ({ type, data, chartLabel }) => {
       borderColor: generateColors(dataset.data.length).map((color) =>
         color.replace("0.6", "1")
       ),
+      barThickness: "flex",
       borderWidth: 1,
     }));
 
@@ -74,18 +75,23 @@ const MOAAChart = ({ type, data, chartLabel }) => {
 
   // Display label value as value of the data for tables
   const dataLabels = {
-    display: true,
+    display: "auto",
     formatter: (value, context) => {
       if (value === 0) {
         return "";
       }
 
-      const label = context.chart.data.labels[context.dataIndex];
-      if (context.dataset.label.toLowerCase() === "aggregate") {
-        return chartLabel.aggregate[label];
-      } else {
-        return chartLabel.filtered[label];
-      }
+    },
+    font: function (context) {
+      var avgSize = Math.round(
+        (context.chart.height + context.chart.width) / 2
+      );
+      var size = Math.round(avgSize / 32);
+      size = size > 12 ? 12 : size; // setting max limit to 12
+      return {
+        size: size,
+        weight: "bold",
+      };
     },
     borderRadius: 3,
     font: {
