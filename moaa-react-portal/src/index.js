@@ -7,7 +7,34 @@ import {
   PartnerListDropdown,
 } from "./components/workshopListDropdown";
 import { Grid2 } from "@mui/material";
+import {
+  createTheme,
+  responsiveFontSizes,
+  ThemeProvider,
+} from "@mui/material/styles";
 
+let theme = createTheme();
+theme = responsiveFontSizes(theme);
+theme.typography.legendText = {
+  fontSize: "0.7rem", // Minimum size for smallest screens
+  fontWeight: 4000,
+  "@media (min-width:480px)": {
+    fontSize: "0.7rem",
+    fontWeight: 600,
+  },
+  "@media (min-width:600px)": {
+    fontSize: "0.75rem",
+    fontWeight: 600,
+  },
+  [theme.breakpoints.up("md")]: {
+    fontSize: "0.8rem",
+    fontWeight: 600,
+  },
+  [theme.breakpoints.up("lg")]: {
+    fontSize: "0.9rem",
+    fontWeight: 600,
+  },
+};
 const queryClient = new QueryClient();
 
 function App() {
@@ -26,35 +53,37 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="moaa_webapp_container">
-        <Grid2 container spacing={1} direction="row">
-          <Grid2 size="grow">
-            <WorkshopListDropdown
-              handleDropdownSelect={(value) =>
-                handleWorkshopDropdownSelect(value)
-              }
-              workshopOption={workshopOption}
-            />
+      <ThemeProvider theme={theme}>
+        <div className="moaa_webapp_container">
+          <Grid2 container spacing={1} direction="row">
+            <Grid2 size="grow">
+              <WorkshopListDropdown
+                handleDropdownSelect={(value) =>
+                  handleWorkshopDropdownSelect(value)
+                }
+                workshopOption={workshopOption}
+              />
+            </Grid2>
+            <Grid2 size="grow">
+              <PartnerListDropdown
+                handleDropdownSelect={(value) =>
+                  handlePartnerDropdownSelect(value)
+                }
+                partnerOption={partnerOption}
+              />
+            </Grid2>
           </Grid2>
-          <Grid2 size="grow">
-            <PartnerListDropdown
-              handleDropdownSelect={(value) =>
-                handlePartnerDropdownSelect(value)
-              }
-              partnerOption={partnerOption}
-            />
-          </Grid2>
-        </Grid2>
-        <div className="moaa_webapp_table_container">
-          {workshopOption?.value ||
-          workshopOption?.value.length === 0 ||
-          partnerOption?.value ? (
-            <MoaaResultTables
-              workshopId={workshopOption?.value ?? partnerOption?.value}
-            />
-          ) : null}
+          <div className="moaa_webapp_table_container">
+            {workshopOption?.value ||
+            workshopOption?.value.length === 0 ||
+            partnerOption?.value ? (
+              <MoaaResultTables
+                workshopId={workshopOption?.value ?? partnerOption?.value}
+              />
+            ) : null}
+          </div>
         </div>
-      </div>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
@@ -69,7 +98,9 @@ function PartnerPortal() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <MoaaResultTables workshopId={id} isPartner />
+      <ThemeProvider theme={theme}>
+        <MoaaResultTables workshopId={id} isPartner />
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
@@ -77,7 +108,9 @@ function PartnerPortal() {
 function AggregateDataPage() {
   return (
     <QueryClientProvider client={queryClient}>
-      <MoaaResultTables workshopId={null} />
+      <ThemeProvider theme={theme}>
+        <MoaaResultTables workshopId={null} />
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
