@@ -149,11 +149,7 @@ const Table = ({
   const table = useMaterialReactTable({
     columns,
     data: worksheetData,
-    enableRowPinning: isWorkshopTable
-      ? (row) => {
-          row.id === "0";
-        }
-      : undefined,
+    enableRowPinning: isWorkshopTable ? (row) => row.id === "0" : undefined,
     rowPinningDisplayMode: isWorkshopTable ? "select-top" : undefined,
     initialState: {
       density: "compact",
@@ -170,7 +166,7 @@ const Table = ({
     enableColumnFilters: false,
     enableSorting: false,
     enableColumnResizing: true,
-    columnResizeMode: "onEnd",
+    columnResizeMode: "onChange",
     renderTopToolbarCustomActions: () => (
       <Tooltip arrow title="Refresh Data">
         <div
@@ -186,10 +182,50 @@ const Table = ({
         </div>
       </Tooltip>
     ),
+    muiTopToolbarProps: {
+      sx: {
+        backgroundColor: "#213555",
+        color: "#ffffff", // Makes text white
+        "& .MuiIconButton-root": {
+          // For toolbar icons
+          color: "#ffffff",
+        },
+        "& .MuiTypography-root": {
+          // For typography elements
+          color: "#ffffff",
+        },
+      },
+    },
+    // Add header row styling
+    muiTableHeadProps: {
+      sx: {
+        "& .MuiTableRow-root": {
+          backgroundColor: "#213555",
+        },
+        opacity: "1",
+      },
+    },
     muiTableHeadCellProps: {
       sx: {
         fontSize: "0.8rem",
         lineHeight: "1.0",
+        color: "#ffffff",
+        minHeight: "48px", // Minimum height for consistency
+        height: "auto",
+        display: "flex",
+        alignItems: "center",
+        // Make the content container take full height
+        "& .Mui-TableHeadCell-Content": {
+          height: "100%",
+        },
+        "& .Mui-TableHeadCell-ResizeHandle-Wrapper": {
+          height: "100%",
+        },
+        "& .MuiDivider-root": {
+          borderColor: "#ffffff",
+          opacity: 0.5,
+          height: "100%",
+        },
       },
     },
     muiTableBodyProps: {
