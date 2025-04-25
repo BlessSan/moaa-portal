@@ -158,6 +158,7 @@ const Table = ({
     muiTableContainerProps: { sx: { maxHeight: "500px" } },
     enableStickyHeader: true,
     enableStickyFooter: true,
+    enableBottomToolbar: false,
     enableGrouping: false,
     enableRowVirtualization: isVirtualize,
     enableToolbarInternalActions: isStatic,
