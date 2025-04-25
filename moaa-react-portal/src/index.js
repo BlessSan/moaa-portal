@@ -55,7 +55,12 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={theme}>
         <div className="moaa_webapp_container">
-          <Grid2 container spacing={1} direction="row">
+          <Grid2
+            container
+            spacing={1}
+            direction="row"
+            sx={{ paddingBottom: "30px" }}
+          >
             <Grid2 size="grow">
               <WorkshopListDropdown
                 handleDropdownSelect={(value) =>

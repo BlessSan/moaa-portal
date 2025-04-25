@@ -33,23 +33,31 @@ const MoaaResultTables = ({ workshopId, isPartner = false }) => {
     return (
       <>
         <QueryRefetchButton queryKey={["tableData", workshopId, isPartner]} />
-        {data.map((worksheet, index) => {
-          return (
-            <div key={worksheet.worksheet}>
-              <Table
-                queryResult={queryResult}
-                isWorkshopTable={worksheet.isWorkshopTable}
-                worksheetData={worksheet.data}
-                worksheetStats={worksheet.columnsSummaryData}
-                worksheetType={worksheet.type}
-                worksheetName={worksheet.worksheet}
-              />
-              {worksheet.chartData && (
-                <Charts chartData={worksheet.chartData} />
-              )}
-            </div>
-          );
-        })}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "30px", // Creates uniform spacing between children
+          }}
+        >
+          {data.map((worksheet, index) => {
+            return (
+              <div key={worksheet.worksheet}>
+                <Table
+                  queryResult={queryResult}
+                  isWorkshopTable={worksheet.isWorkshopTable}
+                  worksheetData={worksheet.data}
+                  worksheetStats={worksheet.columnsSummaryData}
+                  worksheetType={worksheet.type}
+                  worksheetName={worksheet.worksheet}
+                />
+                {worksheet.chartData && (
+                  <Charts chartData={worksheet.chartData} />
+                )}
+              </div>
+            );
+          })}
+        </Box>
       </>
     );
   } else if (isError) {

@@ -43,10 +43,12 @@ ChartJS.register(
 const Charts = ({ chartData }) => {
   if (chartData.data) {
     return (
-      <Stack spacing={2} sx={{ paddingBottom: "30px", paddingTop: "30px" }}>
-        <Box sx={{ textAlign: "center" }}>
-          <Typography variant="h6">{chartData.title}</Typography>
-        </Box>
+      <Stack spacing={1} sx={{ paddingTop: "30px" }}>
+        {chartData.title && (
+          <Box sx={{ textAlign: "center" }}>
+            <Typography variant="h6">{chartData.title}</Typography>
+          </Box>
+        )}
         <Box>
           {chartData.data.map((chartDataset, index) => (
             <MOAAChart type={chartData.type} data={chartDataset} />
