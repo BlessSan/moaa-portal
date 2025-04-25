@@ -51,7 +51,11 @@ const Charts = ({ chartData }) => {
         )}
         <Box>
           {chartData.data.map((chartDataset, index) => (
-            <MOAAChart type={chartData.type} data={chartDataset} />
+            <MOAAChart
+              key={`moaaChart-${index}`}
+              type={chartData.type}
+              data={chartDataset}
+            />
           ))}
         </Box>
       </Stack>
@@ -192,7 +196,7 @@ const MOAAChart = ({ type, data }) => {
         {chartData.datasets.map((dataset, index) => (
           <Grid
             size={gridSize}
-            key={index}
+            key={`chartData-${index}`}
             sx={{
               display: "flex",
               justifyContent: "center",
