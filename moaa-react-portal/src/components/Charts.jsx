@@ -39,15 +39,25 @@ ChartJS.register(
  */
 const Charts = ({ chartData }) => {
   if (chartData.data) {
+    // Calculate grid sizing based on number of chart datasets
+    const gridSize =
+      chartData.type === "pie" && chartData.data.length === 2
+        ? { xs: 12, sm: 6 } // Two pie charts side by side on sm screens
+        : { xs: 12 }; // Default to full width
+
     return (
       <Stack spacing={2}>
         <Box sx={{ textAlign: "center" }}>
           <Typography variant="h6">{chartData.title}</Typography>
         </Box>
         <Box>
-          {chartData.data.map((chartDataset, index) => (
-            <MOAAChart key={index} type={chartData.type} data={chartDataset} />
-          ))}
+          <Grid container spacing={2} sx={{ justifyContent: "center" }}>
+            {chartData.data.map((chartDataset, index) => (
+              <Grid key={index} {...gridSize}>
+                <MOAAChart type={chartData.type} data={chartDataset} />
+              </Grid>
+            ))}
+          </Grid>
         </Box>
       </Stack>
     );
@@ -168,7 +178,12 @@ const MOAAChart = ({ type, data }) => {
     return merge({}, defaultOptions, specificOptions[type]);
   };
 
-  const gridSize = type === "pie" ? { xs: 12, sm: 6 } : { xs: 12 };
+  const gridSize =
+    type === "pie"
+      ? data.datasets.length === 1
+        ? { xs: 12 } // Single dataset - full width
+        : { xs: 12, sm: 6 } // Multiple datasets - half width on sm screens
+      : { xs: 12 }; // Not a pie chart - full width
 
   return (
     chartData && (
@@ -227,7 +242,7 @@ const MOAAChart = ({ type, data }) => {
                         : "1 1 100%",
                     position: "relative",
                     display: "flex",
-                    justifyContent: type !== "bar" ? "center" : "flex-start",
+                    justifyContent: type === "bar" ? "center" : "flex-start",
                     minHeight: "100%", // Ensures it takes full height of parent
                   }}
                 >
