@@ -14,7 +14,10 @@ import {
 import merge from "lodash/merge";
 import { Chart } from "react-chartjs-2";
 import ChartDataLabels from "chartjs-plugin-datalabels";
-import { generateColors } from "../modules/generateColors";
+import {
+  generateColors,
+  generateBorderColors,
+} from "../modules/generateColors";
 import Grid from "@mui/material/Grid2";
 import Box from "@mui/material/Box";
 import HTMLLegend from "./CustomLegend";
@@ -70,14 +73,18 @@ const MOAAChart = ({ type, data }) => {
 
   useEffect(() => {
     const labels = data.labels;
+    const dataLength = data.datasets[0]?.data?.length || 0;
+
+    // Get both background and border colors
+    const backgroundColors = generateColors(dataLength);
+    const borderColors = generateBorderColors(backgroundColors);
+
     const datasets = data.datasets.map((dataset) => ({
       label: dataset.label,
       data: dataset.data,
       customLabels: dataset.customLabels,
-      backgroundColor: generateColors(dataset.data.length),
-      borderColor: generateColors(dataset.data.length).map((color) =>
-        color.replace("0.6", "1")
-      ),
+      backgroundColor: backgroundColors,
+      borderColor: borderColors,
       barThickness: "flex",
       borderWidth: 1,
     }));
