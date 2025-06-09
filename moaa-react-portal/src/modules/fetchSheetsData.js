@@ -7,6 +7,14 @@ axios.interceptors.response.use(
 
     const data = JSON.parse(response.data);
     if (data.error) {
+      if (
+        data.error === "Cannot read properties of undefined (reading 'match')"
+      ) {
+        return Promise.reject(
+          new Error("No participant responses recorded yet for this id.")
+        );
+      }
+
       return Promise.reject(new Error(data.error));
     }
     return response;

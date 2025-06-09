@@ -13,8 +13,8 @@ import {
   Stack,
   Tooltip,
   Typography,
+  Alert,
 } from "@mui/material";
-
 import QueryRefetchButton from "./QueryRefetchButton";
 import Charts from "./Charts";
 
@@ -64,7 +64,7 @@ const MoaaResultTables = ({ workshopId, isPartner = false }) => {
     return (
       <>
         <QueryRefetchButton queryKey={["tableData", workshopId, isPartner]} />
-        <Typography color="error">{error.message}</Typography>
+        <Alert severity="error">{error.message}</Alert>
         {error?.response?.data?.message ? (
           <Typography variant="caption" color="warning">
             details: {error?.response?.data?.message}
