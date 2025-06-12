@@ -14,6 +14,7 @@ import {
   Tooltip,
   Typography,
   Alert,
+  Divider,
 } from "@mui/material";
 import QueryRefetchButton from "./QueryRefetchButton";
 import Charts from "./Charts";
@@ -37,24 +38,35 @@ const MoaaResultTables = ({ workshopId, isPartner = false }) => {
           sx={{
             display: "flex",
             flexDirection: "column",
-            gap: "30px", // Creates uniform spacing between children
+            gap: "60px", // Creates uniform spacing between children
           }}
         >
           {data.map((worksheet, index) => {
             return (
-              <div key={worksheet.worksheet}>
-                <Table
-                  queryResult={queryResult}
-                  isWorkshopTable={worksheet.isWorkshopTable}
-                  worksheetData={worksheet.data}
-                  worksheetStats={worksheet.columnsSummaryData}
-                  worksheetType={worksheet.type}
-                  worksheetName={worksheet.worksheet}
-                />
-                {worksheet.chartData && (
-                  <Charts chartData={worksheet.chartData} />
-                )}
-              </div>
+              <Box key={worksheet.worksheet}>
+                <Box>
+                  <Table
+                    queryResult={queryResult}
+                    isWorkshopTable={worksheet.isWorkshopTable}
+                    worksheetData={worksheet.data}
+                    worksheetStats={worksheet.columnsSummaryData}
+                    worksheetType={worksheet.type}
+                    worksheetName={worksheet.worksheet}
+                  />
+                  {worksheet.chartData && (
+                    <Charts chartData={worksheet.chartData} />
+                  )}
+                </Box>
+                {index + 1 < data?.length ? (
+                  <Divider
+                    sx={{
+                      paddingTop: "60px",
+                      borderColor: "#dbd6d6",
+                      borderBottomWidth: 1,
+                    }}
+                  />
+                ) : null}
+              </Box>
             );
           })}
         </Box>
