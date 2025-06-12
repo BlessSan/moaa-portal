@@ -18,6 +18,7 @@ import {
   generateColors,
   generateBorderColors,
 } from "../modules/generateColors";
+import { extractPercentage } from "../modules/extractPercentage";
 import Grid from "@mui/material/Grid2";
 import Box from "@mui/material/Box";
 import HTMLLegend from "./CustomLegend";
@@ -101,23 +102,27 @@ const MOAAChart = ({ type, data }) => {
 
       const datasetIndex = context.datasetIndex;
       const index = context.dataIndex;
-      return context.chart.data.datasets[datasetIndex].customLabels[index];
+      const isRounded = type === "bar";
+      //TODO: Make font size larger on pie label
+      //TODO: Check if chart is pie -> keep decimal, if bar -> round to nearest integer
+      const label = extractPercentage(
+        context.chart.data.datasets[datasetIndex].customLabels[index],
+        isRounded
+      );
+      return label;
     },
     font: function (context) {
       var avgSize = Math.round(
         (context.chart.height + context.chart.width) / 2
       );
       var size = Math.round(avgSize / 32);
-      size = size > 12 ? 12 : size; // setting max limit to 12
+      size = size > 14 ? 14 : size; // setting max limit to 12
       return {
         size: size,
         weight: "bold",
       };
     },
     borderRadius: 3,
-    font: {
-      weight: "bold",
-    },
   };
 
   const defaultOptions = {
