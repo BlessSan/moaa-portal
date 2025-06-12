@@ -84,6 +84,7 @@ function App() {
             partnerOption?.value ? (
               <MoaaResultTables
                 workshopId={workshopOption?.value ?? partnerOption?.value}
+                workshopName={workshopOption?.label ?? partnerOption?.label}
               />
             ) : null}
           </div>

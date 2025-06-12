@@ -19,7 +19,7 @@ import {
 import QueryRefetchButton from "./QueryRefetchButton";
 import Charts from "./Charts";
 
-const MoaaResultTables = ({ workshopId, isPartner = false }) => {
+const MoaaResultTables = ({ workshopId, workshopName, isPartner = false }) => {
   // const [isPending, isError, data, isRefetching] =
   //   useFetchSheetsData(workshopId);
 
@@ -54,7 +54,12 @@ const MoaaResultTables = ({ workshopId, isPartner = false }) => {
                     worksheetName={worksheet.worksheet}
                   />
                   {worksheet.chartData && (
-                    <Charts chartData={worksheet.chartData} />
+                    <Charts
+                      chartData={worksheet.chartData}
+                      isWorkshopTable={worksheet.isWorkshopTable}
+                      worksheetName={worksheet.worksheet}
+                      workshopName={workshopName}
+                    />
                   )}
                 </Box>
                 {index + 1 < data?.length ? (

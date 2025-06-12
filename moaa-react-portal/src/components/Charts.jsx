@@ -24,6 +24,7 @@ import Box from "@mui/material/Box";
 import HTMLLegend from "./CustomLegend";
 import Stack from "@mui/material/Stack";
 import { Typography } from "@mui/material";
+import { formatChartLabel } from "../modules/formatChartLabel";
 
 ChartJS.register(
   PieController,
@@ -41,7 +42,12 @@ ChartJS.register(
 /**
  * Main Charts component that handles multiple chart datasets
  */
-const Charts = ({ chartData }) => {
+const Charts = ({
+  chartData,
+  isWorkshopTable,
+  worksheetName,
+  workshopName,
+}) => {
   if (chartData.data) {
     return (
       <Stack spacing={1} sx={{ paddingTop: "30px" }}>
@@ -56,6 +62,9 @@ const Charts = ({ chartData }) => {
               key={`moaaChart-${index}`}
               type={chartData.type}
               data={chartDataset}
+              isWorkshopTable={isWorkshopTable}
+              worksheetName={worksheetName}
+              workshopName={workshopName}
             />
           ))}
         </Box>
@@ -65,7 +74,13 @@ const Charts = ({ chartData }) => {
   return null;
 };
 
-const MOAAChart = ({ type, data }) => {
+const MOAAChart = ({
+  type,
+  data,
+  isWorkshopTable,
+  worksheetName,
+  workshopName,
+}) => {
   const [chartData, setChartData] = useState(null);
 
   useEffect(() => {
@@ -76,15 +91,38 @@ const MOAAChart = ({ type, data }) => {
     const backgroundColors = generateColors(dataLength);
     const borderColors = generateBorderColors(backgroundColors);
 
-    const datasets = data.datasets.map((dataset) => ({
-      label: dataset.label,
-      data: dataset.data,
-      customLabels: dataset.customLabels,
-      backgroundColor: backgroundColors,
-      borderColor: borderColors,
-      barThickness: "flex",
-      borderWidth: 1,
-    }));
+    const datasets = data.datasets.map((dataset) => {
+      /**
+       * Label formatting for bar chart
+       *
+       * check first if isWorkshopTable === true
+       *
+       * if not Aggregate => [WorkhseetName] - [WorkshopName]/[PartnerName]
+       * if aggregate => [WorksheetName] - ALL MOAA TAKERS
+       * For pie chart, first dataset same as bar chart
+       * second dataset [WorksheetName] replaced by VISIONARY & INTEGRATOR
+       * NOTE: VISIONARY & INTEGRATOR name is only specific for INTEGRATOR CHANGE REQUIRED worksheet.
+       * check that it belongs to that worksheet first
+       *
+       * if isWorkshopTable === false
+       * label change to ALL MOAA TAKERS
+       */
+      const label = formatChartLabel(
+        dataset.label,
+        isWorkshopTable,
+        worksheetName,
+        workshopName
+      );
+      return {
+        label: label,
+        data: dataset.data,
+        customLabels: dataset.customLabels,
+        backgroundColor: backgroundColors,
+        borderColor: borderColors,
+        barThickness: "flex",
+        borderWidth: 1,
+      };
+    });
 
     setChartData({
       labels: labels,
