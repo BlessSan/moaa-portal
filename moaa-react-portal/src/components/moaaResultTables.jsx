@@ -56,9 +56,7 @@ const MoaaResultTables = ({ workshopId, workshopName, isPartner = false }) => {
                   {worksheet.chartData && (
                     <Charts
                       chartData={worksheet.chartData}
-                      isWorkshopTable={worksheet.isWorkshopTable}
                       worksheetName={worksheet.worksheet}
-                      workshopName={workshopName}
                     />
                   )}
                 </Box>

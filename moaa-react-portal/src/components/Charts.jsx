@@ -42,12 +42,7 @@ ChartJS.register(
 /**
  * Main Charts component that handles multiple chart datasets
  */
-const Charts = ({
-  chartData,
-  isWorkshopTable,
-  worksheetName,
-  workshopName,
-}) => {
+const Charts = ({ chartData, worksheetName }) => {
   if (chartData.data) {
     return (
       <Stack spacing={1} sx={{ paddingTop: "30px" }}>
@@ -62,9 +57,8 @@ const Charts = ({
               key={`moaaChart-${index}`}
               type={chartData.type}
               data={chartDataset}
-              isWorkshopTable={isWorkshopTable}
               worksheetName={worksheetName}
-              workshopName={workshopName}
+              dataIndex={index}
             />
           ))}
         </Box>
@@ -74,13 +68,7 @@ const Charts = ({
   return null;
 };
 
-const MOAAChart = ({
-  type,
-  data,
-  isWorkshopTable,
-  worksheetName,
-  workshopName,
-}) => {
+const MOAAChart = ({ type, data, worksheetName, dataIndex }) => {
   const [chartData, setChartData] = useState(null);
 
   useEffect(() => {
@@ -92,29 +80,13 @@ const MOAAChart = ({
     const borderColors = generateBorderColors(backgroundColors);
 
     const datasets = data.datasets.map((dataset) => {
-      /**
-       * Label formatting for bar chart
-       *
-       * check first if isWorkshopTable === true
-       *
-       * if not Aggregate => [WorkhseetName] - [WorkshopName]/[PartnerName]
-       * if aggregate => [WorksheetName] - ALL MOAA TAKERS
-       * For pie chart, first dataset same as bar chart
-       * second dataset [WorksheetName] replaced by VISIONARY & INTEGRATOR
-       * NOTE: VISIONARY & INTEGRATOR name is only specific for INTEGRATOR CHANGE REQUIRED worksheet.
-       * check that it belongs to that worksheet first
-       *
-       * if isWorkshopTable === false
-       * label change to ALL MOAA TAKERS
-       */
-      const label = formatChartLabel(
+      const formattedLabel = formatChartLabel(
         dataset.label,
-        isWorkshopTable,
         worksheetName,
-        workshopName
+        dataIndex
       );
       return {
-        label: label,
+        label: formattedLabel,
         data: dataset.data,
         customLabels: dataset.customLabels,
         backgroundColor: backgroundColors,
