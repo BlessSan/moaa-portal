@@ -15,7 +15,7 @@ export const formatChartLabel = (label, worksheetName, datasetIndex) => {
   const integratorChangeRequiredChartSecondDatasetLabel =
     "VISIONARY & INTEGRATOR";
   const aggregateLabel = "Aggregate";
-  //checks if its on "Integrator Change Required" worksheet AND on the second dataset
+  worksheetName = worksheetName.replace(/^Aggregate\s+/, "");
   if (
     worksheetName === integratorChangeRequiredWorksheet &&
     datasetIndex === 1
