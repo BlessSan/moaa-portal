@@ -45,13 +45,13 @@ ChartJS.register(
 const Charts = ({ chartData, worksheetName }) => {
   if (chartData.data) {
     return (
-      <Stack spacing={1} sx={{ paddingTop: "30px" }}>
+      <Stack spacing={1} sx={{ paddingTop: "60px" }}>
         {chartData.title && (
           <Box sx={{ textAlign: "center" }}>
             <Typography variant="h6">{chartData.title}</Typography>
           </Box>
         )}
-        <Box>
+        <Stack spacing={7.5}>
           {chartData.data.map((chartDataset, index) => (
             <MOAAChart
               key={`moaaChart-${index}`}
@@ -61,7 +61,7 @@ const Charts = ({ chartData, worksheetName }) => {
               dataIndex={index}
             />
           ))}
-        </Box>
+        </Stack>
       </Stack>
     );
   }
@@ -197,12 +197,14 @@ const MOAAChart = ({ type, data, worksheetName, dataIndex }) => {
   };
 
   const gridSize = type === "pie" ? { xs: 12, sm: 6 } : { xs: 12 };
+  const spacing = type === "pie" ? 1 : 7.5;
 
   return (
     chartData && (
       <Grid
         container
-        spacing={2}
+        rowSpacing={spacing}
+        columnSpacing={{ xs: 1, sm: 2, md: 3 }}
         sx={{
           justifyContent: "center",
           alignItems: "center",
