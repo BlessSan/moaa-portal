@@ -206,6 +206,11 @@ const Table = ({
         </div>
       </Tooltip>
     ),
+    muiTableProps: {
+      sx: {
+        marginBottom: "0px !important",
+      },
+    },
     muiTopToolbarProps: {
       sx: {
         backgroundColor: "#213555",
