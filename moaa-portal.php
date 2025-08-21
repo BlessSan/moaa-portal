@@ -356,11 +356,14 @@ add_action('template_redirect', 'moaa_portal_redirect');
 function moaa_login_redirect($redirect_to, $request, $user)
 {
   $option = get_option(MOAA_OPTION_NAME);
-  if ($user && in_array(MOAA_USER_TYPE_PARTNER, $user->roles) && isset($option)) {
-    $portal_page = $option[MOAA_CLIENT_PORTAL_PAGE_OPTION_KEY];
-    $portal_url = home_url('/' . $portal_page);
-    $client_portal_url = add_query_arg('id', $user->user_login, $portal_url);
-    return $client_portal_url;
+  if ($user instanceof WP_User && !empty($user->roles) && is_array($user->roles)) {
+    if (in_array(MOAA_USER_TYPE_PARTNER, $user->roles, true) && !empty($option[MOAA_CLIENT_PORTAL_PAGE_OPTION_KEY])) {
+      $portal_page = $option[MOAA_CLIENT_PORTAL_PAGE_OPTION_KEY];
+      $portal_url = home_url('/' . $portal_page);
+      $client_portal_url = add_query_arg('id', $user->user_login, $portal_url);
+      return $client_portal_url;
+    }
+    return $redirect_to;
   }
   return $redirect_to;
 }
